@@ -91,11 +91,9 @@ internal static class ContextualSelectionActionsPatch
     internal readonly string DisplayName => name ?? NodeMetadataHelper.GetMetadata(node).Name ?? node.GetNiceTypeName();
   }
 
-  internal static bool Prefix(ProtoFluxTool __instance, SyncRef<ProtoFluxElementProxy> ____currentProxy)
+  internal static bool GetSelectionActions(ProtoFluxTool tool, ProtoFluxElementProxy elementProxy)
   {
-    var elementProxy = ____currentProxy.Target;
-
-    var items = MenuItems(__instance)
+    var items = MenuItems(tool)
             .Where(i => (i.binding ?? i.node).IsValidGenericType(validForInstantiation: true)) // this isn't great, we should instead catch errors before they propigate to here.
             .ToList();
     //var customItems = FluxRecipeConfig.GetItems(tool, elementProxy).ToList();
@@ -105,7 +103,7 @@ internal static class ContextualSelectionActionsPatch
 
     if (items.Count/* + customItems.Count*/ != 0)
     {
-      CreateRootItems(__instance, elementProxy, rootData);
+      CreateRootItems(tool, elementProxy, rootData);
 
       return false;
     }

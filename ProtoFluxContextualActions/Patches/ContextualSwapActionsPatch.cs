@@ -69,14 +69,13 @@ internal static partial class ContextualSwapActionsPatch
 
   private static readonly ConditionalWeakTable<ProtoFluxTool, ProtoFluxToolData> additionalData = [];
 
-  internal static bool Prefix(ProtoFluxTool __instance, SyncRef<ProtoFluxElementProxy> ____currentProxy)
+  internal static bool GetSwapActions(ProtoFluxTool tool, ProtoFluxElementProxy elementProxy)
   {
-    var data = additionalData.GetOrCreateValue(__instance);
-    var elementProxy = ____currentProxy.Target;
+    var data = additionalData.GetOrCreateValue(tool);
 
     if (elementProxy is null)
     {
-      var hit = GetHit(__instance);
+      var hit = GetHit(tool);
       if (hit is { Collider.Slot: var hitSlot })
       {
         var hitNode = hitSlot.GetComponentInParents<ProtoFluxNode>();
@@ -84,7 +83,7 @@ internal static partial class ContextualSwapActionsPatch
         {
           if (data.SecondsSinceLastSecondaryPress() < DoublePressTime && data.lastSecondaryPressNode != null && !data.lastSecondaryPressNode.IsRemoved && data.lastSecondaryPressNode == hitNode)
           {
-            CreateMenu(__instance, hitNode);
+            CreateMenu(tool, hitNode);
             data.lastSecondaryPressNode = null;
             data.lastSecondaryPressNode = null;
             data.lastSpawnNodeType = null;
@@ -93,7 +92,7 @@ internal static partial class ContextualSwapActionsPatch
           }
           else
           {
-            data.lastSpawnNodeType = __instance.SpawnNodeType;
+            data.lastSpawnNodeType = tool.SpawnNodeType;
             data.lastSecondaryPressNode = hitNode;
             data.lastSecondaryPress = DateTime.Now;
             // skip null

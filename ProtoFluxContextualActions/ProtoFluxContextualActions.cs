@@ -1,15 +1,17 @@
 using Elements.Core;
 using HarmonyLib;
+using ProtoFluxContextualActions.Attributes;
 using ResoniteModLoader;
 using System;
 using System.Linq;
 using System.Reflection;
-using ProtoFluxContextualActions.Attributes;
 
 namespace ProtoFluxContextualActions;
 
 using System.Collections.Generic;
+using FrooxEngine;
 using global::ProtoFluxContextualActions.Utils;
+using Renderite.Shared;
 
 #if DEBUG
 using ResoniteHotReloadLib;
@@ -129,5 +131,60 @@ public class ProtoFluxContextualActions : ResoniteMod
         harmony.UnpatchCategory(category);
       }
     }
+  }
+
+
+  [AutoRegisterConfigKey]
+  public static readonly ModConfigurationKey<bool> AlternateDefaults = new ModConfigurationKey<bool>("Alternate Defaults", "If the activation binds are the alternate set.", () => false);
+
+  [AutoRegisterConfigKey]
+  public static readonly ModConfigurationKey<bool> DesktopUsesVRBinds = new ModConfigurationKey<bool>("Desktop Uses VR Binds", "If desktop should use the same binds as VR", () => false);
+
+  [AutoRegisterConfigKey]
+  public static readonly ModConfigurationKey<Key> SecondaryKey = new ModConfigurationKey<Key>("Secondary Key", "What key to use for 'opposite' secondary", () => Key.BackQuote);
+  [AutoRegisterConfigKey]
+  public static readonly ModConfigurationKey<Key> MenuKey = new ModConfigurationKey<Key>("Menu Key", "What key to use for 'opposite' menu", () => Key.LeftShift);
+  [AutoRegisterConfigKey]
+  public static readonly ModConfigurationKey<Key> GrabKey = new ModConfigurationKey<Key>("Grab Key", "What key to use for 'opposite' grab", () => Key.LeftAlt);
+  [AutoRegisterConfigKey]
+  public static readonly ModConfigurationKey<Key> PrimaryKey = new ModConfigurationKey<Key>("Primary Key", "What key to use for 'opposite' primary", () => Key.Tab);
+
+  [AutoRegisterConfigKey]
+  public static readonly ModConfigurationKey<bool> ArgsUseIndexFirst = new ModConfigurationKey<bool>("Arg Index First", "If DynImp arguments use Index before Names", () => false);
+
+  public static T GetConfig<T>(ModConfigurationKey<T> key, T Default)
+  {
+    ModConfiguration? config = Config;
+    if (config != null) return config.GetValue(key) ?? Default;
+    return Default;
+  }
+  public static bool UseAlternateDefaults()
+  {
+    return GetConfig(AlternateDefaults, false);
+  }
+  public static bool GetDesktopShouldUseVR()
+  {
+    return GetConfig(DesktopUsesVRBinds, false);
+  }
+  public static Key GetSecondaryKey()
+  {
+
+    return GetConfig(SecondaryKey, Key.BackQuote);
+  }
+  public static Key GetMenuKey()
+  {
+    return GetConfig(MenuKey, Key.LeftShift);
+  }
+  public static Key GetGrabKey()
+  {
+    return GetConfig(GrabKey, Key.LeftAlt);
+  }
+  public static Key GetPrimaryKey()
+  {
+    return GetConfig(PrimaryKey, Key.Tab);
+  }
+  public static bool ReadIndexFirst()
+  {
+    return GetConfig(ArgsUseIndexFirst, false);
   }
 }

@@ -47,28 +47,28 @@ internal static class ContextualReferenceActionsPatch
 
   static readonly Dictionary<Type, MenuItem[]> cache = [];
 
-  internal static bool Prefix(ProtoFluxTool __instance)
+  internal static bool GetReferenceActions(ProtoFluxTool tool)
   {
-    var grabbedReference = __instance.GetGrabbedReference();
+    var grabbedReference = tool.GetGrabbedReference();
     if (grabbedReference == null) return true;
 
-    var items = cache.GetOrCreate(grabbedReference.GetType(), () => MenuItems(__instance, grabbedReference).Take(10).ToArray());
+    var items = cache.GetOrCreate(grabbedReference.GetType(), () => MenuItems(tool, grabbedReference).Take(10).ToArray());
 
     if (items.Length != 0)
     {
-      if (__instance.LocalUser.IsContextMenuOpen())
+      if (tool.LocalUser.IsContextMenuOpen())
       {
-        __instance.LocalUser.CloseContextMenu(__instance);
+        tool.LocalUser.CloseContextMenu(tool);
         return true;
       }
 
-      __instance.StartTask(async () =>
+      tool.StartTask(async () =>
       {
-        var menu = await __instance.LocalUser.OpenContextMenu(__instance, __instance.Slot);
+        var menu = await tool.LocalUser.OpenContextMenu(tool, tool.Slot);
 
         foreach (var menuItem in items)
         {
-          AddMenuItem(__instance, menu, menuItem, n =>
+          AddMenuItem(tool, menu, menuItem, n =>
           {
             // todo: sanity checking rather than assuming
             if (n.NodeGlobalRefCount > 0)
