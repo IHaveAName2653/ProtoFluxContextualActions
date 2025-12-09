@@ -52,7 +52,7 @@ internal class Pager<T> where T : IPageItems
     proxy = elementProxy;
     menuButtonSetup = onMenuButtonPressed;
 
-    if (proxy == null) return;
+    //if (proxy == null) return;
     if (menuButtonSetup == null) return;
 
     Dictionary<string, List<T>> halfSortedItems = [];
@@ -176,7 +176,7 @@ internal class Pager<T> where T : IPageItems
       }
       foreach (var item in PagedItems[page])
       {
-        if (proxy == null) return;
+        //if (proxy == null) return;
         colorX? targetColor = ProtoFluxContextualActions.GetUseTypeColor() ? itemColor : null;
         targetColor ??= item.GetNodeType()?.GetTypeColor();
         if (targetColor == null) targetColor = colorX.White;

@@ -103,6 +103,14 @@ internal class BindFile
           Invert = false,
           State = ConditionState.Held
         }
+      },
+      new Control() {
+        Bind = ControlBind.Grip,
+        IsPrimary = false,
+        FireCondition = new Condition() {
+          Invert = true,
+          State = ConditionState.Pressed
+        }
       }
     ]
   };

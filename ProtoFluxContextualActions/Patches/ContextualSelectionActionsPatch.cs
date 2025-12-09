@@ -103,6 +103,8 @@ internal static class ContextualSelectionActionsPatch
     var customItems = FluxRecipeConfig.GetItems(tool, elementProxy).ToList();
     // todo: pages / menu
 
+    if (items.Count + customItems.Count == 0) return true;
+
     Action<ProtoFluxTool, ProtoFluxElementProxy, MenuItem, ProtoFluxNode>? currentAction = null;
     colorX? targetColor = null;
 
@@ -131,10 +133,13 @@ internal static class ContextualSelectionActionsPatch
           break;
         }
       default:
-        throw new Exception("found items for unsupported protoflux contextual action type");
+        {
+          currentAction = ProcessEmptyProxyItem;
+          break;
+        }
     }
 
-    if (currentAction == null) return false;
+    if (currentAction == null) return true;
 
     Pager<MenuItem> baseItemManager = new();
     Pager<FluxRecipeConfig.PartialMenuItem> customItemManager = new();
@@ -147,14 +152,9 @@ internal static class ContextualSelectionActionsPatch
 
     var rootData = new PageRootData(baseItemManager, customItemManager);
 
-    if (items.Count + customItems.Count != 0)
-    {
-      CreateRootItems(tool, rootData);
+    CreateRootItems(tool, rootData);
 
-      return false;
-    }
-
-    return true;
+    return false;
   }
 
   #region Proxy Setups
@@ -269,6 +269,11 @@ internal static class ContextualSelectionActionsPatch
     addedNode.TryConnectImpulse(addedNode.GetImpulse(item.wireIndex), operationProxy.NodeOperation.Target, undoable: true);
   }
 
+  private static void ProcessEmptyProxyItem(ProtoFluxTool tool, ProtoFluxElementProxy elementProxy, MenuItem item, ProtoFluxNode addedNode)
+  {
+    item.onNodeSpawn?.Invoke(addedNode, elementProxy, tool);
+  }
+
   private static void ProcessCustomProxyItem(ProtoFluxTool tool, ProtoFluxElementProxy proxy, FluxRecipeConfig.PartialMenuItem item)
   {
     item.onMenuPress(tool, proxy, item.recipe);
@@ -374,6 +379,11 @@ internal static class ContextualSelectionActionsPatch
     else if (target is ProtoFluxOperationProxy operationProxy)
     {
       foreach (var item in OperationMenuItems(operationProxy)) yield return item;
+    }
+
+    else
+    {
+      foreach (var item in NullProxyMenuItems()) yield return item;
     }
   }
 
@@ -1438,6 +1448,19 @@ internal static class ContextualSelectionActionsPatch
     yield return new MenuItem(variableInput, group: "Variables");
     yield return new MenuItem(variableInput2, group: "Variables");
     yield return new MenuItem(variableInput3, group: "Variables");
+  }
+
+  // Items that show up if you trigger select without any proxies
+  internal static IEnumerable<MenuItem> NullProxyMenuItems()
+  {
+    yield return new(typeof(ObjectRelay<Slot>), binding: typeof(FrooxEngine.ProtoFlux.Runtimes.Execution.Nodes.RefObjectInput<Slot>),
+      name: "Slot Input", group: "References");
+    yield return new(typeof(GetActiveUserSelf), group: "References");
+
+    yield return new(typeof(ValueWrite<int>), group: "Variables");
+
+
+    yield return new(typeof(DynamicImpulseReceiver), group: "Impulse");
   }
 
   internal static Dictionary<Type, List<Type>> UnpackNodeMapping(World world) =>
