@@ -54,84 +54,43 @@ internal static partial class ContextualSwapActionsPatch
 
   internal record ContextualContext(Type NodeType, World World, ProtoFluxElementProxy? proxy);
 
-  // additional data we store for the protoflux tool
-  internal class ProtoFluxToolData
-  {
-    internal DateTime? lastSecondaryPress;
-    internal ProtoFluxNode? lastSecondaryPressNode;
-    internal Type? lastSpawnNodeType;
-
-    internal double SecondsSinceLastSecondaryPress() => (DateTime.Now - lastSecondaryPress.GetValueOrDefault()).TotalSeconds;
-  }
-
-  // TODO: configurable
-  const double DoublePressTime = 0.45;
-
-  private static readonly ConditionalWeakTable<ProtoFluxTool, ProtoFluxToolData> additionalData = [];
-
   internal static bool GetSwapActions(ProtoFluxTool tool, ProtoFluxElementProxy elementProxy)
   {
-    var data = additionalData.GetOrCreateValue(tool);
-
-    if (elementProxy is null)
+    var hit = GetHit(tool);
+    if (hit is { Collider.Slot: var hitSlot })
     {
-      var hit = GetHit(tool);
-      if (hit is { Collider.Slot: var hitSlot })
+      var hitNode = hitSlot.GetComponentInParents<ProtoFluxNode>();
+      if (hitNode != null)
       {
-        var hitNode = hitSlot.GetComponentInParents<ProtoFluxNode>();
-        if (hitNode != null)
-        {
-          if (data.SecondsSinceLastSecondaryPress() < DoublePressTime && data.lastSecondaryPressNode != null && !data.lastSecondaryPressNode.IsRemoved && data.lastSecondaryPressNode == hitNode)
-          {
-            CreateMenu(tool, hitNode);
-            data.lastSecondaryPressNode = null;
-            data.lastSecondaryPressNode = null;
-            data.lastSpawnNodeType = null;
-            // skip rest
-            return false;
-          }
-          else
-          {
-            data.lastSpawnNodeType = tool.SpawnNodeType;
-            data.lastSecondaryPressNode = hitNode;
-            data.lastSecondaryPress = DateTime.Now;
-            // skip null
-            return true;
-          }
-        }
+        CreateMenu(tool, hitNode);
+        // skip rest
+        return false;
       }
-
-      data.lastSecondaryPressNode = null;
-      data.lastSecondaryPress = null;
-      data.lastSpawnNodeType = null;
     }
 
     return true;
   }
 
-  private static void CreateMenu(ProtoFluxTool __instance, ProtoFluxNode hitNode)
+  private static void CreateMenu(ProtoFluxTool tool, ProtoFluxNode hitNode)
   {
-    __instance.StartTask(async () =>
+    tool.StartTask(async () =>
     {
-      var items = GetMenuItems(__instance, hitNode).Where(m => m.node != hitNode.NodeType).Take(10).ToArray();
+      var items = GetMenuItems(tool, hitNode).Where(m => m.node != hitNode.NodeType).Take(10).ToArray();
 
       var query = new NodeQueryAcceleration(hitNode.NodeInstance.Runtime.Group);
 
       if (items.Length > 0)
       {
-        // restore previous spawn node
-        __instance.SpawnNodeType.Value = additionalData.GetOrCreateValue(__instance).lastSpawnNodeType;
-
-        var menu = await __instance.LocalUser.OpenContextMenu(__instance, __instance.Slot);
+        var menu = await ContextHelper.CreateContext(tool);
         // TODO: pages / custom menus
 
         foreach (var menuItem in items)
         {
-          AddMenuItem(__instance, menu, colorX.White, menuItem, () =>
+          AddMenuItem(tool, menu, colorX.White, menuItem, () =>
           {
             try
             {
-              SwapHitForNode(__instance, hitNode, menuItem);
+              SwapHitForNode(tool, hitNode, menuItem);
             }
             finally
             {
