@@ -1,61 +1,61 @@
-using System;
 using Elements.Core;
+using Elements.Quantity;
 using FrooxEngine;
 using FrooxEngine.ProtoFlux;
-
-using ProtoFluxContextualActions.Attributes;
-using static ProtoFluxContextualActions.Utils.PsuedoGenericUtils;
+using FrooxEngine.ProtoFlux.CoreNodes;
 using HarmonyLib;
-using System.Runtime.CompilerServices;
-using System.Collections.Generic;
-using System.Linq;
 using ProtoFlux.Core;
 using ProtoFlux.Runtimes.Execution.Nodes;
-using ProtoFlux.Runtimes.Execution.Nodes.Operators;
-using ProtoFlux.Runtimes.Execution.Nodes.Math.Quaternions;
-using ProtoFlux.Runtimes.Execution.Nodes.FrooxEngine.Transform;
-using ProtoFlux.Runtimes.Execution.Nodes.FrooxEngine.Slots;
-using ProtoFlux.Runtimes.Execution.Nodes.FrooxEngine.Users;
+using ProtoFlux.Runtimes.Execution.Nodes.Actions;
+using ProtoFlux.Runtimes.Execution.Nodes.Enums;
+using ProtoFlux.Runtimes.Execution.Nodes.FrooxEngine.Assets;
 using ProtoFlux.Runtimes.Execution.Nodes.FrooxEngine.Async;
 using ProtoFlux.Runtimes.Execution.Nodes.FrooxEngine.Audio;
-using SharpPipe;
-using ProtoFlux.Runtimes.Execution.Nodes.TimeAndDate;
-using ProtoFlux.Runtimes.Execution.Nodes.Math;
-using ProtoFlux.Runtimes.Execution.Nodes.Strings.Characters;
-using ProtoFlux.Runtimes.Execution.Nodes.Strings;
-using ProtoFlux.Runtimes.Execution.Nodes.ParsingFormatting;
-using ProtoFlux.Runtimes.Execution.Nodes.Actions;
-using ProtoFluxContextualActions.Utils;
-using ProtoFlux.Runtimes.Execution.Nodes.FrooxEngine.References;
-using FrooxEngine.ProtoFlux.CoreNodes;
-using ProtoFlux.Runtimes.Execution.Nodes.Math.Bounds;
-using ProtoFlux.Runtimes.Execution.Nodes.FrooxEngine.Worlds;
-using Elements.Quantity;
-using ProtoFlux.Runtimes.Execution.Nodes.Math.Quantity;
-using ProtoFlux.Runtimes.Execution.Nodes.Utility;
-using System.Diagnostics.CodeAnalysis;
-using ProtoFlux.Runtimes.Execution.Nodes.FrooxEngine.Rendering;
-using ProtoFlux.Runtimes.Execution.Nodes.FrooxEngine.Assets;
-using ProtoFlux.Runtimes.Execution.Nodes.FrooxEngine.Utility;
-using ProtoFlux.Runtimes.Execution.Nodes.FrooxEngine.Users.Roots;
-using ProtoFluxContextualActions.Extensions;
-using ProtoFlux.Runtimes.Execution.Nodes.FrooxEngine.Physics;
-using Renderite.Shared;
 using ProtoFlux.Runtimes.Execution.Nodes.FrooxEngine.Avatar;
 using ProtoFlux.Runtimes.Execution.Nodes.FrooxEngine.Avatar.BodyNodes;
-using ProtoFlux.Runtimes.Execution.Nodes.FrooxEngine.Interaction;
-using ProtoFlux.Runtimes.Execution.Nodes.Enums;
-using ProtoFlux.Runtimes.Execution.Nodes.Math.Constants;
-using ProtoFlux.Runtimes.Execution.Nodes.Math.Random;
-using ProtoFluxContextualActions.Tagging;
-using ProtoFlux.Runtimes.Execution.Nodes.FrooxEngine.Input.Mouse;
-using ProtoFlux.Runtimes.Execution.Nodes.FrooxEngine.Users.LocalScreen;
-using ProtoFlux.Runtimes.Execution.Nodes.FrooxEngine.Interaction.Tools;
-using ProtoFlux.Runtimes.Execution.Nodes.Math.SphericalHarmonics;
 using ProtoFlux.Runtimes.Execution.Nodes.FrooxEngine.Input.Keyboard;
-using ProtoFlux.Runtimes.Execution.Nodes.Math.Rects;
-using ProtoFlux.Runtimes.Execution.Nodes.Utility.Uris;
+using ProtoFlux.Runtimes.Execution.Nodes.FrooxEngine.Input.Mouse;
+using ProtoFlux.Runtimes.Execution.Nodes.FrooxEngine.Interaction;
+using ProtoFlux.Runtimes.Execution.Nodes.FrooxEngine.Interaction.Tools;
+using ProtoFlux.Runtimes.Execution.Nodes.FrooxEngine.Physics;
+using ProtoFlux.Runtimes.Execution.Nodes.FrooxEngine.References;
+using ProtoFlux.Runtimes.Execution.Nodes.FrooxEngine.Rendering;
+using ProtoFlux.Runtimes.Execution.Nodes.FrooxEngine.Slots;
+using ProtoFlux.Runtimes.Execution.Nodes.FrooxEngine.Transform;
+using ProtoFlux.Runtimes.Execution.Nodes.FrooxEngine.Users;
+using ProtoFlux.Runtimes.Execution.Nodes.FrooxEngine.Users.LocalScreen;
+using ProtoFlux.Runtimes.Execution.Nodes.FrooxEngine.Users.Roots;
+using ProtoFlux.Runtimes.Execution.Nodes.FrooxEngine.Utility;
 using ProtoFlux.Runtimes.Execution.Nodes.FrooxEngine.Variables;
+using ProtoFlux.Runtimes.Execution.Nodes.FrooxEngine.Worlds;
+using ProtoFlux.Runtimes.Execution.Nodes.Math;
+using ProtoFlux.Runtimes.Execution.Nodes.Math.Bounds;
+using ProtoFlux.Runtimes.Execution.Nodes.Math.Constants;
+using ProtoFlux.Runtimes.Execution.Nodes.Math.Quantity;
+using ProtoFlux.Runtimes.Execution.Nodes.Math.Quaternions;
+using ProtoFlux.Runtimes.Execution.Nodes.Math.Random;
+using ProtoFlux.Runtimes.Execution.Nodes.Math.Rects;
+using ProtoFlux.Runtimes.Execution.Nodes.Math.SphericalHarmonics;
+using ProtoFlux.Runtimes.Execution.Nodes.Operators;
+using ProtoFlux.Runtimes.Execution.Nodes.ParsingFormatting;
+using ProtoFlux.Runtimes.Execution.Nodes.Strings;
+using ProtoFlux.Runtimes.Execution.Nodes.Strings.Characters;
+using ProtoFlux.Runtimes.Execution.Nodes.TimeAndDate;
+using ProtoFlux.Runtimes.Execution.Nodes.Utility;
+using ProtoFlux.Runtimes.Execution.Nodes.Utility.Uris;
+using ProtoFluxContextualActions.Attributes;
+using ProtoFluxContextualActions.Extensions;
+using ProtoFluxContextualActions.Tagging;
+using ProtoFluxContextualActions.Utils;
+using Renderite.Shared;
+using SharpPipe;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
+using static ProtoFluxContextualActions.Utils.PsuedoGenericUtils;
 
 namespace ProtoFluxContextualActions.Patches;
 
@@ -64,7 +64,7 @@ namespace ProtoFluxContextualActions.Patches;
 internal static class ContextualSelectionActionsPatch
 {
 
-  internal readonly struct MenuItem(Type node, Type? binding = null, string? name = null, bool overload = false)
+  internal readonly struct MenuItem(Type node, string? group = "", Type? binding = null, string? name = null, bool overload = false, Func<ProtoFluxNode, ProtoFluxElementProxy, ProtoFluxTool, bool>? onNodeSpawn = null)
   {
     internal readonly Type node = node;
 
@@ -74,114 +74,30 @@ internal static class ContextualSelectionActionsPatch
 
     internal readonly bool overload = overload;
 
+    // Group similar items together based on a group name
+    internal readonly string? group = group;
+
+    //                     Spawned Node   Held Element Proxy     Tool           Should still handle connection
+    internal readonly Func<ProtoFluxNode, ProtoFluxElementProxy, ProtoFluxTool, bool>? onNodeSpawn = onNodeSpawn;
+
     internal readonly string DisplayName => name ?? NodeMetadataHelper.GetMetadata(node).Name ?? node.GetNiceTypeName();
   }
 
   internal static bool Prefix(ProtoFluxTool __instance, SyncRef<ProtoFluxElementProxy> ____currentProxy)
   {
     var elementProxy = ____currentProxy.Target;
+
     var items = MenuItems(__instance)
-      .Where(i => (i.binding ?? i.node).IsValidGenericType(validForInstantiation: true)) // this isn't great, we should instead catch errors before they propigate to here.
-      .Take(10)
-      .ToArray();
+            .Where(i => (i.binding ?? i.node).IsValidGenericType(validForInstantiation: true)) // this isn't great, we should instead catch errors before they propigate to here.
+            .ToList();
+    //var customItems = FluxRecipeConfig.GetItems(tool, elementProxy).ToList();
     // todo: pages / menu
 
-    if (items.Length != 0)
+    var rootData = new PageRootData(items/*, customItems*/);
+
+    if (items.Count/* + customItems.Count*/ != 0)
     {
-      if (__instance.LocalUser.IsContextMenuOpen())
-      {
-        __instance.LocalUser.CloseContextMenu(__instance);
-        return true;
-      }
-
-      __instance.StartTask(async () =>
-      {
-        var menu = await __instance.LocalUser.OpenContextMenu(__instance, __instance.Slot);
-        Traverse.Create(menu).Field<float?>("_speedOverride").Value = 10; // faster for better swiping
-
-        switch (elementProxy)
-        {
-          case ProtoFluxInputProxy inputProxy:
-            {
-              foreach (var item in items)
-              {
-                AddMenuItem(__instance, menu, inputProxy.InputType.Value.GetTypeColor(), item, addedNode =>
-                {
-                  if (item.overload)
-                  {
-                    __instance.StartTask(async () =>
-                    {
-                      // this is dumb
-                      // TODO: investigate why it's needed to avoid the one or two update disconnect issue
-                      await new Updates(1);
-                      var output = addedNode.GetOutput(0); // TODO: specify
-                      elementProxy.Node.Target.TryConnectInput(inputProxy.NodeInput.Target, output, allowExplicitCast: false, undoable: true);
-                    });
-                  }
-                  else
-                  {
-                    var output = addedNode.NodeOutputs
-                      .FirstOrDefault(o => typeof(INodeOutput<>).MakeGenericType(inputProxy.InputType).IsAssignableFrom(o.GetType()))
-                      ?? throw new Exception($"Could not find matching output of type '{inputProxy.InputType}' in '{addedNode}'");
-
-                    elementProxy.Node.Target.TryConnectInput(inputProxy.NodeInput.Target, output, allowExplicitCast: false, undoable: true);
-                  }
-                });
-              }
-              break;
-            }
-          case ProtoFluxOutputProxy outputProxy:
-            {
-              foreach (var item in items)
-              {
-                AddMenuItem(__instance, menu, outputProxy.OutputType.Value.GetTypeColor(), item, addedNode =>
-                {
-                  if (item.overload) throw new Exception("Overloading with ProtoFluxOutputProxy is not supported");
-                  var input = addedNode.NodeInputs
-                    .FirstOrDefault(i => i.TargetType.IsGenericType && (outputProxy.OutputType.Value.IsAssignableFrom(i.TargetType.GenericTypeArguments[0]) || ProtoFlux.Core.TypeHelper.CanImplicitlyConvertTo(outputProxy.OutputType, i.TargetType.GenericTypeArguments[0])))
-                    ?? throw new Exception($"Could not find matching input of type '{outputProxy.OutputType}' in '{addedNode}'");
-
-                  __instance.StartTask(async () =>
-                  {
-                    // this is dumb
-                    // TODO: investigate why it's needed for casting to work
-                    await new Updates();
-                    addedNode.TryConnectInput(input, outputProxy.NodeOutput.Target, allowExplicitCast: false, undoable: true);
-                  });
-                });
-              }
-              break;
-            }
-          case ProtoFluxImpulseProxy impulseProxy:
-            {
-              foreach (var item in items)
-              {
-                // the colors should almost always be the same so unique colors are more important maybe?
-                AddMenuItem(__instance, menu, item.node.GetTypeColor(), item, n =>
-                {
-                  if (item.overload) throw new Exception("Overloading with ProtoFluxImpulseProxy is not supported");
-                  var operation = n.NodeOperationCount > 0 ? n.GetOperation(0) : n.GetOperationList(0).GetElement(0) as INodeOperation;
-                  n.TryConnectImpulse(impulseProxy.NodeImpulse.Target, operation, undoable: true);
-                });
-              }
-              break;
-            }
-          case ProtoFluxOperationProxy operationProxy:
-            {
-              foreach (var item in items)
-              {
-                AddMenuItem(__instance, menu, item.node.GetTypeColor(), item, n =>
-                {
-                  if (item.overload) throw new Exception("Overloading with ProtoFluxOperationProxy is not supported");
-                  n.TryConnectImpulse(n.GetImpulse(0), operationProxy.NodeOperation.Target, undoable: true);
-                });
-              }
-              break;
-            }
-          default:
-            throw new Exception("found items for unsupported protoflux contextual action type");
-        }
-      });
+      CreateRootItems(__instance, elementProxy, rootData);
 
       return false;
     }
@@ -189,7 +105,286 @@ internal static class ContextualSelectionActionsPatch
     return true;
   }
 
-  private static void AddMenuItem(ProtoFluxTool __instance, ContextMenu menu, colorX color, MenuItem item, Action<ProtoFluxNode> setup)
+  #region Proxy Setups
+
+  private static void ProcessInputProxyItem(ProtoFluxTool tool, ProtoFluxElementProxy elementProxy, MenuItem item, ProtoFluxNode addedNode)
+  {
+    ProtoFluxInputProxy inputProxy = (ProtoFluxInputProxy)elementProxy;
+    if (item.overload)
+    {
+      tool.StartTask(async () =>
+      {
+        // this is dumb
+        // TODO: investigate why it's needed to avoid the one or two update disconnect issue
+        await new Updates(1);
+
+        if (item.onNodeSpawn != null)
+        {
+          bool doConnect = item.onNodeSpawn(addedNode, elementProxy, tool);
+
+          if (!doConnect) return;
+        }
+
+        var output = addedNode.GetOutput(0); // TODO: specify
+        elementProxy.Node.Target.TryConnectInput(inputProxy.NodeInput.Target, output, allowExplicitCast: false, undoable: true);
+      });
+    }
+    else
+    {
+      if (item.onNodeSpawn != null)
+      {
+        bool doConnect = item.onNodeSpawn(addedNode, elementProxy, tool);
+
+        if (!doConnect) return;
+      }
+
+      var output = addedNode.NodeOutputs
+        .FirstOrDefault(o => typeof(INodeOutput<>).MakeGenericType(inputProxy.InputType).IsAssignableFrom(o.GetType()))
+        ?? throw new Exception($"Could not find matching output of type '{inputProxy.InputType}' in '{addedNode}'");
+
+      elementProxy.Node.Target.TryConnectInput(inputProxy.NodeInput.Target, output, allowExplicitCast: false, undoable: true);
+    }
+  }
+  private static void ProcessOutputProxyItem(ProtoFluxTool tool, ProtoFluxElementProxy elementProxy, MenuItem item, ProtoFluxNode addedNode)
+  {
+    ProtoFluxOutputProxy outputProxy = (ProtoFluxOutputProxy)elementProxy;
+    if (item.overload) throw new Exception("Overloading with ProtoFluxOutputProxy is not supported");
+    var input = addedNode.NodeInputs
+      .FirstOrDefault(i => i.TargetType.IsGenericType && (outputProxy.OutputType.Value.IsAssignableFrom(i.TargetType.GenericTypeArguments[0]) || ProtoFlux.Core.TypeHelper.CanImplicitlyConvertTo(outputProxy.OutputType, i.TargetType.GenericTypeArguments[0])))
+      ?? throw new Exception($"Could not find matching input of type '{outputProxy.OutputType}' in '{addedNode}'");
+
+    tool.StartTask(async () =>
+    {
+      // this is dumb
+      // TODO: investigate why it's needed for casting to work
+      await new Updates();
+
+      if (item.onNodeSpawn != null)
+      {
+        bool doConnect = item.onNodeSpawn(addedNode, elementProxy, tool);
+
+        if (!doConnect) return;
+      }
+
+      addedNode.TryConnectInput(input, outputProxy.NodeOutput.Target, allowExplicitCast: false, undoable: true);
+    });
+  }
+  private static void ProcessImpulseProxyItem(ProtoFluxTool tool, ProtoFluxElementProxy elementProxy, MenuItem item, ProtoFluxNode addedNode)
+  {
+    ProtoFluxImpulseProxy impulseProxy = (ProtoFluxImpulseProxy)elementProxy;
+    if (item.overload) throw new Exception("Overloading with ProtoFluxImpulseProxy is not supported");
+    if (item.onNodeSpawn != null)
+    {
+      bool doConnect = item.onNodeSpawn(addedNode, elementProxy, tool);
+
+      if (!doConnect) return;
+    }
+
+    var operation = addedNode.NodeOperationCount > 0 ? addedNode.GetOperation(0) : addedNode.GetOperationList(0).GetElement(0) as INodeOperation;
+    addedNode.TryConnectImpulse(impulseProxy.NodeImpulse.Target, operation, undoable: true);
+  }
+  private static void ProcessOperationProxyItem(ProtoFluxTool tool, ProtoFluxElementProxy elementProxy, MenuItem item, ProtoFluxNode addedNode)
+  {
+    ProtoFluxOperationProxy operationProxy = (ProtoFluxOperationProxy)elementProxy;
+    if (item.overload) throw new Exception("Overloading with ProtoFluxOperationProxy is not supported");
+    if (item.onNodeSpawn != null)
+    {
+      bool doConnect = item.onNodeSpawn(addedNode, elementProxy, tool);
+
+      if (!doConnect) return;
+    }
+    addedNode.TryConnectImpulse(addedNode.GetImpulse(0), operationProxy.NodeOperation.Target, undoable: true);
+  }
+
+  #endregion
+
+  #region Groups and Pages
+
+  internal const int MAX_PER_PAGE = 8;
+
+  #region Groups
+
+  internal struct PageRootData(List<MenuItem> mainItems/*, List<FluxRecipeConfig.PartialMenuItem> customItems*/)
+  {
+    internal List<MenuItem> mainItems = mainItems;
+    //internal List<FluxRecipeConfig.PartialMenuItem> customItems = customItems;
+  }
+
+  private static void CreateRootItems(ProtoFluxTool tool, ProtoFluxElementProxy elementProxy, PageRootData rootData)
+  {
+    List<MenuItem> items = rootData.mainItems;
+    //List<FluxRecipeConfig.PartialMenuItem> customItems = rootData.customItems;
+
+    tool.StartTask(async () =>
+    {
+      var menu = await CreateContext(tool);
+
+      Dictionary<string, List<MenuItem>> sortedItems = [];
+      foreach (MenuItem item in items)
+      {
+        string groupName = "Unsorted";
+        if (item.group != null && !string.IsNullOrEmpty(item.group)) groupName = item.group;
+        if (sortedItems.TryGetValue(groupName, out var list))
+        {
+          list.Add(item);
+        }
+        else
+        {
+          sortedItems.Add(groupName, [item]);
+        }
+      }
+
+      Action<ProtoFluxTool, ProtoFluxElementProxy, MenuItem, ProtoFluxNode>? currentAction = null;
+      colorX? targetColor = null;
+
+      switch (elementProxy)
+      {
+        case ProtoFluxInputProxy inputProxy:
+          {
+            currentAction = ProcessInputProxyItem;
+            targetColor = inputProxy.InputType.Value.GetTypeColor();
+            break;
+          }
+        case ProtoFluxOutputProxy outputProxy:
+          {
+            currentAction = ProcessOutputProxyItem;
+            targetColor = outputProxy.OutputType.Value.GetTypeColor();
+            break;
+          }
+        case ProtoFluxImpulseProxy impulseProxy:
+          {
+            currentAction = ProcessImpulseProxyItem;
+            break;
+          }
+        case ProtoFluxOperationProxy operationProxy:
+          {
+            currentAction = ProcessOperationProxyItem;
+            break;
+          }
+        default:
+          throw new Exception("found items for unsupported protoflux contextual action type");
+      }
+
+      if (currentAction == null) return;
+
+      if (sortedItems.Count <= 1)
+      {
+        AddSubfolder(tool, elementProxy, menu, "Wire", colorX.White, targetColor, items, currentAction, rootData);
+      }
+      else
+      {
+        foreach (var kv in sortedItems)
+        {
+          AddSubfolder(tool, elementProxy, menu, kv.Key, colorX.White, null, kv.Value, currentAction, rootData);
+        }
+      }
+
+
+      /*if (customItems.Count != 0)
+      {
+        AddSubfolderCustom(tool, elementProxy, menu, "Custom", colorX.Orange, customItems, rootData);
+      }*/
+    });
+  }
+
+  private static void AddMenuFolder(ContextMenu menu, string folderName, colorX color, Action setup)
+  {
+    var label = (LocaleString)folderName;
+    var menuItem = menu.AddItem(in label, (Uri?)null, color);
+    menuItem.Button.LocalPressed += (button, data) =>
+    {
+      setup();
+    };
+  }
+
+  private static async void AddSubfolder(
+    ProtoFluxTool tool,
+    ProtoFluxElementProxy proxy,
+    ContextMenu menu,
+    string folderName,
+    colorX color,
+    colorX? itemColor,
+    List<MenuItem> items,
+    Action<ProtoFluxTool, ProtoFluxElementProxy, MenuItem, ProtoFluxNode> setup,
+    PageRootData rootData)
+  {
+    List<List<MenuItem>> PagedItems = Split(items);
+    AddMenuFolder(menu, folderName, color, () =>
+    {
+      RebuildPagedMenu(tool, proxy, itemColor, PagedItems, setup, 0, rootData);
+    });
+  }
+
+  private static void RebuildPagedMenu(
+        ProtoFluxTool tool,
+        ProtoFluxElementProxy proxy,
+        colorX? itemColor,
+        List<List<MenuItem>> PagedItems,
+        Action<ProtoFluxTool, ProtoFluxElementProxy, MenuItem, ProtoFluxNode> setup,
+        int page,
+        PageRootData rootData)
+  {
+    tool.StartTask(async () =>
+    {
+      var newMenu = await CreateContext(tool);
+      if (page == 0)
+      {
+        var label = (LocaleString)"Back";
+        var menuItem = newMenu.AddItem(in label, (Uri?)null, colorX.Red);
+        menuItem.Button.LocalPressed += (button, data) =>
+        {
+          tool.LocalUser.CloseContextMenu(tool);
+          CreateRootItems(tool, proxy, rootData);
+        };
+      }
+      if (page > 0)
+      {
+        var label = (LocaleString)$"Previous Page<size=25%>\n\n</size><size=75%>({page}/{PagedItems.Count})</size>";
+        var menuItem = newMenu.AddItem(in label, (Uri?)null, colorX.Orange);
+        menuItem.Button.LocalPressed += (button, data) =>
+        {
+          tool.LocalUser.CloseContextMenu(tool);
+          RebuildPagedMenu(tool, proxy, itemColor, PagedItems, setup, page - 1, rootData);
+        };
+      }
+      foreach (var item in PagedItems[page])
+      {
+        colorX targetColor = itemColor ?? item.node.GetTypeColor();
+        AddMenuItem(tool, proxy, newMenu, targetColor, item, setup);
+      }
+      if (PagedItems.Count - 1 > page)
+      {
+        var label = (LocaleString)$"Next Page<size=25%>\n\n</size><size=75%>({page + 2}/{PagedItems.Count})</size>";
+        var menuItem = newMenu.AddItem(in label, (Uri?)null, colorX.Cyan);
+        menuItem.Button.LocalPressed += (button, data) =>
+        {
+          tool.LocalUser.CloseContextMenu(tool);
+          RebuildPagedMenu(tool, proxy, itemColor, PagedItems, setup, page + 1, rootData);
+        };
+      }
+    });
+  }
+
+  #endregion
+
+  #region Utils
+
+  private static async Task<ContextMenu> CreateContext(this ProtoFluxTool tool)
+  {
+    var newMenu = await tool.LocalUser.OpenContextMenu(tool, tool.Slot);
+    Traverse.Create(newMenu).Field<float?>("_speedOverride").Value = 10; // Should allow for consistent flicking
+    return newMenu;
+  }
+  private static List<List<T>> Split<T>(IList<T> source)
+  {
+    return source
+      .Select((x, i) => new { Index = i, Value = x })
+      .GroupBy(x => x.Index / MAX_PER_PAGE)
+      .Select(x => x.Select(v => v.Value).ToList())
+      .ToList();
+  }
+
+  private static void AddMenuItem(ProtoFluxTool __instance, ProtoFluxElementProxy proxy, ContextMenu menu, colorX color, MenuItem item, Action<ProtoFluxTool, ProtoFluxElementProxy, MenuItem, ProtoFluxNode> setup)
   {
     var nodeMetadata = NodeMetadataHelper.GetMetadata(item.node);
     var label = (LocaleString)item.DisplayName;
@@ -200,12 +395,16 @@ internal static class ContextualSelectionActionsPatch
       __instance.SpawnNode(nodeBinding, n =>
       {
         n.EnsureElementsInDynamicLists();
-        setup(n);
+        setup(__instance, proxy, item, n);
         __instance.LocalUser.CloseContextMenu(__instance);
         CleanupDraggedWire(__instance);
       });
     };
   }
+
+  #endregion
+
+  #endregion
 
   // note: if we can build up a graph then we can egraph reduce to make matches like this easier to spot automatically rather than needing to check each one manually
   // todo: detect add + 1 and offer to convert to inc?
