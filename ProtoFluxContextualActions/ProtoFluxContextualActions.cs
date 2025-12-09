@@ -144,6 +144,9 @@ public class ProtoFluxContextualActions : ResoniteMod
   public static readonly ModConfigurationKey<int> MaxPerPage = new ModConfigurationKey<int>("Max Per Page", "How many items can show up on one page", () => 8);
 
   [AutoRegisterConfigKey]
+  public static readonly ModConfigurationKey<bool> UseTypeColor = new ModConfigurationKey<bool>("Use Type Color", "If the menu items should use the type color instead of the node type color", () => true);
+
+  [AutoRegisterConfigKey]
   public static readonly ModConfigurationKey<float> DoubleTapSpeed = new ModConfigurationKey<float>("Double Tap Speed", "How fast a doubletap is", () => 0.5f);
 
   [AutoRegisterConfigKey]
@@ -177,6 +180,10 @@ public class ProtoFluxContextualActions : ResoniteMod
   public static int GetMaxPerPage()
   {
     return GetConfig(MaxPerPage, 8);
+  }
+  public static bool GetUseTypeColor()
+  {
+    return GetConfig(UseTypeColor, true);
   }
   public static float GetDoubleTapSpeed()
   {

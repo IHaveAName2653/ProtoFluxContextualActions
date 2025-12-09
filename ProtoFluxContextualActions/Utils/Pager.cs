@@ -177,8 +177,10 @@ internal class Pager<T> where T : IPageItems
       foreach (var item in PagedItems[page])
       {
         if (proxy == null) return;
-        colorX targetColor = itemColor ?? item.GetNodeType()?.GetTypeColor() ?? colorX.White;
-        AddMenuItem(tool, proxy, newMenu, targetColor, item);
+        colorX? targetColor = ProtoFluxContextualActions.GetUseTypeColor() ? itemColor : null;
+        targetColor ??= item.GetNodeType()?.GetTypeColor();
+        if (targetColor == null) targetColor = colorX.White;
+        AddMenuItem(tool, proxy, newMenu, targetColor.Value, item);
       }
       if (PagedItems.Count - 1 > page)
       {
