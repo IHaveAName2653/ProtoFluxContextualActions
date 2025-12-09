@@ -255,13 +255,14 @@ public class LegacyRecipeStringInterface : DynOverride
       varsExist &= DynSpaceHelper.TryRead(makerSpace, "RecipeType", out Type recipeType) && recipeType != null;
       varsExist &= DynSpaceHelper.TryRead(makerSpace, "RecipeIsOutput", out bool recipeIsOutput);
       DynSpaceHelper.TryRead(makerSpace, "RecipeColor", out colorX? recipeColor);
+      DynSpaceHelper.TryRead(makerSpace, "RecipeGroup", out string? recipeGroup);
 
       if (!varsExist) return true;
       if (string.IsNullOrEmpty(recipeName)) return true;
       if (recipeRootNode == null) return true;
       if (recipeType == null) return true;
 
-      var recipeVarProvider = new MakerDynVars(recipeName, recipeIsOutput, recipeRootNode, recipeType, recipeColor);
+      var recipeVarProvider = new MakerDynVars(recipeName, recipeIsOutput, recipeRootNode, recipeType, recipeColor, recipeGroup);
       FluxRecipeConfig.RecipeFromSlot(hierarchy, recipeVarProvider);
       return false;
     }
