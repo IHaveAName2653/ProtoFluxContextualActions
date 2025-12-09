@@ -66,7 +66,7 @@ using static ProtoFluxContextualActions.Utils.PsuedoGenericUtils;
 namespace ProtoFluxContextualActions.Patches;
 
 [HarmonyPatchCategory("ProtoFluxTool Contextual Actions"), TweakCategory("Adds 'Contextual Actions' to the ProtoFlux Tool. Pressing secondary while holding a protoflux tool will open a context menu of actions based on what wire you're dragging instead of always spawning an input/display node. Pressing secondary again will spawn out an input/display node like normal.")]
-[HarmonyPatch(typeof(ProtoFluxTool), nameof(ProtoFluxTool.OnSecondaryPress))]
+// [HarmonyPatch(typeof(ProtoFluxTool), nameof(ProtoFluxTool.OnSecondaryPress))]
 internal static class ContextualSelectionActionsPatch
 {
 

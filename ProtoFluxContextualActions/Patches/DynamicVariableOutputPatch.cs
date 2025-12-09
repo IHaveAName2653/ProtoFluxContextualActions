@@ -1,13 +1,14 @@
-using System;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using ProtoFluxContextualActions.Attributes;
 using Elements.Core;
 using FrooxEngine;
 using FrooxEngine.ProtoFlux;
+using FrooxEngine.ProtoFlux.Runtimes.Execution.Nodes;
 using FrooxEngine.ProtoFlux.Runtimes.Execution.Nodes.FrooxEngine.Variables;
 using HarmonyLib;
+using ProtoFluxContextualActions.Attributes;
 using ProtoFluxContextualActions.Utils;
+using System;
+using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace ProtoFluxContextualActions.Patches;
 
@@ -36,12 +37,70 @@ internal static class DynamicVariableOutputPatch
         ]);
 
         __instance.SpawnNode(variableInput, n =>
-            {
-              var globalValue = n.Slot.AttachComponent<GlobalValue<string>>();
-              globalValue.SetValue(variableName);
-              n.GetGlobalRef(0).Target = globalValue;
-              __instance.ActiveHandler.CloseContextMenu();
-            });
+        {
+          var globalValue = n.Slot.AttachComponent<GlobalValue<string>>();
+          globalValue.SetValue(variableName);
+          n.GetGlobalRef(0).Target = globalValue;
+          __instance.ActiveHandler.CloseContextMenu();
+        });
+      };
+
+      label = "Read";
+      var item2 = menu.AddItem(in label, Icon_Color_Output, RadiantUI_Constants.Hero.CYAN);
+      item2.Button.LocalPressed += (button, data) =>
+      {
+        var variableRead = GetNodeForType(variableType, [
+            new NodeTypeRecord(typeof(ReadDynamicValueVariable<>), null, null),
+                    new NodeTypeRecord(typeof(ReadDynamicObjectVariable<>), null, null),
+                ]);
+        var variableNameInput = typeof(ValueObjectInput<string>);
+
+        INodeOutput? inputOutput = null;
+        __instance.SpawnNode(variableNameInput, n =>
+        {
+          ((ValueObjectInput<string>)n).Value.Value = variableName;
+          inputOutput = n.GetOutput(0);
+          float3 upDir = n.Slot.Up;
+          float3 rightDir = n.Slot.Right;
+          float3 scaling = n.Slot.LocalScale;
+
+          float3 delta = (upDir * -0.015f) + (rightDir * -0.25f);
+          n.Slot.LocalPosition += delta * scaling;
+        });
+        __instance.SpawnNode(variableRead, n =>
+        {
+          n.GetInput(1).Target = inputOutput;
+          __instance.ActiveHandler.CloseContextMenu();
+        });
+      };
+
+      label = "Write";
+      var item3 = menu.AddItem(in label, Icon_Color_Output, RadiantUI_Constants.Hero.CYAN);
+      item3.Button.LocalPressed += (button, data) =>
+      {
+        var variableRead = GetNodeForType(variableType, [
+            new NodeTypeRecord(typeof(WriteDynamicValueVariable<>), null, null),
+                    new NodeTypeRecord(typeof(WriteDynamicObjectVariable<>), null, null),
+                ]);
+        var variableNameInput = typeof(ValueObjectInput<string>);
+
+        INodeOutput? inputOutput = null;
+        __instance.SpawnNode(variableNameInput, n =>
+        {
+          ((ValueObjectInput<string>)n).Value.Value = variableName;
+          inputOutput = n.GetOutput(0);
+          float3 upDir = n.Slot.Up;
+          float3 rightDir = n.Slot.Right;
+          float3 scaling = n.Slot.LocalScale;
+
+          float3 delta = (upDir * -0.015f) + (rightDir * -0.25f);
+          n.Slot.LocalPosition += delta * scaling;
+        });
+        __instance.SpawnNode(variableRead, n =>
+        {
+          n.GetInput(1).Target = inputOutput;
+          __instance.ActiveHandler.CloseContextMenu();
+        });
       };
     }
   }

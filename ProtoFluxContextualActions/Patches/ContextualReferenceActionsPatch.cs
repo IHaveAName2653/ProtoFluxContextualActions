@@ -14,7 +14,7 @@ using System.Reflection;
 namespace ProtoFluxContextualActions.Patches;
 
 [HarmonyPatchCategory("ProtoFluxTool Reference Node Creation"), TweakCategory("Adds 'Reference Node Creation' to the ProtoFlux Tool. Pressing secondary while holding a reference will open a context menu of actions to create nodes with the Global Reference field set to the held reference.")]
-[HarmonyPatch(typeof(ProtoFluxTool), nameof(ProtoFluxTool.OnSecondaryPress))]
+// [HarmonyPatch(typeof(ProtoFluxTool), nameof(ProtoFluxTool.OnSecondaryPress))]
 internal static class ContextualReferenceActionsPatch
 {
   internal readonly struct MenuItem(Type node, Type? binding = null, string? name = null)
