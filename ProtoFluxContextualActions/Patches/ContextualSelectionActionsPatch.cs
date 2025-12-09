@@ -70,7 +70,7 @@ namespace ProtoFluxContextualActions.Patches;
 internal static class ContextualSelectionActionsPatch
 {
 
-  internal readonly struct MenuItem(Type node, string? group = null, int? wireIndex = null, Type? binding = null, string? name = null, bool overload = false, Func<ProtoFluxNode, ProtoFluxElementProxy, ProtoFluxTool, bool>? onNodeSpawn = null)
+  internal readonly struct MenuItem(Type node, string? group = null, int? wireIndex = null, Type? binding = null, string? name = null, bool overload = false, Func<ProtoFluxNode, ProtoFluxElementProxy, ProtoFluxTool, bool>? onNodeSpawn = null) : IPageItems
   {
     internal readonly Type node = node;
 
@@ -89,6 +89,10 @@ internal static class ContextualSelectionActionsPatch
     internal readonly Func<ProtoFluxNode, ProtoFluxElementProxy, ProtoFluxTool, bool>? onNodeSpawn = onNodeSpawn;
 
     internal readonly string DisplayName => name ?? NodeMetadataHelper.GetMetadata(node).Name ?? node.GetNiceTypeName();
+
+    public string? GetGroup() => group;
+    public string? GetDisplayName() => DisplayName;
+    public Type? GetNodeType() => node;
   }
 
   internal static bool GetSelectionActions(ProtoFluxTool tool, ProtoFluxElementProxy elementProxy)
@@ -96,14 +100,56 @@ internal static class ContextualSelectionActionsPatch
     var items = MenuItems(tool)
             .Where(i => (i.binding ?? i.node).IsValidGenericType(validForInstantiation: true)) // this isn't great, we should instead catch errors before they propigate to here.
             .ToList();
-    //var customItems = FluxRecipeConfig.GetItems(tool, elementProxy).ToList();
+    var customItems = FluxRecipeConfig.GetItems(tool, elementProxy).ToList();
     // todo: pages / menu
 
-    var rootData = new PageRootData(items/*, customItems*/);
+    Action<ProtoFluxTool, ProtoFluxElementProxy, MenuItem, ProtoFluxNode>? currentAction = null;
+    colorX? targetColor = null;
 
-    if (items.Count/* + customItems.Count*/ != 0)
+    switch (elementProxy)
     {
-      CreateRootItems(tool, elementProxy, rootData);
+      case ProtoFluxInputProxy inputProxy:
+        {
+          currentAction = ProcessInputProxyItem;
+          targetColor = inputProxy.InputType.Value.GetTypeColor();
+          break;
+        }
+      case ProtoFluxOutputProxy outputProxy:
+        {
+          currentAction = ProcessOutputProxyItem;
+          targetColor = outputProxy.OutputType.Value.GetTypeColor();
+          break;
+        }
+      case ProtoFluxImpulseProxy impulseProxy:
+        {
+          currentAction = ProcessImpulseProxyItem;
+          break;
+        }
+      case ProtoFluxOperationProxy operationProxy:
+        {
+          currentAction = ProcessOperationProxyItem;
+          break;
+        }
+      default:
+        throw new Exception("found items for unsupported protoflux contextual action type");
+    }
+
+    if (currentAction == null) return false;
+
+    Pager<MenuItem> baseItemManager = new();
+    Pager<FluxRecipeConfig.PartialMenuItem> customItemManager = new();
+
+    baseItemManager.InitPagedItems(items, targetColor, elementProxy, (Tool, Proxy, Item) =>
+    {
+      BaseMenuSetup(Tool, Proxy, Item, currentAction);
+    });
+    customItemManager.InitPagedItems(customItems, targetColor, elementProxy, ProcessCustomProxyItem);
+
+    var rootData = new PageRootData(baseItemManager, customItemManager);
+
+    if (items.Count + customItems.Count != 0)
+    {
+      CreateRootItems(tool, rootData);
 
       return false;
     }
@@ -223,6 +269,13 @@ internal static class ContextualSelectionActionsPatch
     addedNode.TryConnectImpulse(addedNode.GetImpulse(item.wireIndex), operationProxy.NodeOperation.Target, undoable: true);
   }
 
+  private static void ProcessCustomProxyItem(ProtoFluxTool tool, ProtoFluxElementProxy proxy, FluxRecipeConfig.PartialMenuItem item)
+  {
+    item.onMenuPress(tool, proxy, item.recipe);
+    tool.LocalUser.CloseContextMenu(tool);
+    CleanupDraggedWire(tool);
+  }
+
   #endregion
 
   #region Groups and Pages
@@ -231,164 +284,26 @@ internal static class ContextualSelectionActionsPatch
 
   #region Groups
 
-  internal struct PageRootData(List<MenuItem> mainItems/*, List<FluxRecipeConfig.PartialMenuItem> customItems*/)
+  internal struct PageRootData(Pager<MenuItem> mainItems, Pager<FluxRecipeConfig.PartialMenuItem> customItems)
   {
-    internal List<MenuItem> mainItems = mainItems;
-    //internal List<FluxRecipeConfig.PartialMenuItem> customItems = customItems;
+    internal Pager<MenuItem> mainItems = mainItems;
+    internal Pager<FluxRecipeConfig.PartialMenuItem> customItems = customItems;
   }
 
-  private static void CreateRootItems(ProtoFluxTool tool, ProtoFluxElementProxy elementProxy, PageRootData rootData)
+  internal static void CreateRootItems(ProtoFluxTool tool, PageRootData rootData)
   {
-    List<MenuItem> items = rootData.mainItems;
-    //List<FluxRecipeConfig.PartialMenuItem> customItems = rootData.customItems;
-
     tool.StartTask(async () =>
     {
       var menu = await CreateContext(tool);
 
-      Dictionary<string, List<MenuItem>> sortedItems = [];
-      foreach (MenuItem item in items)
-      {
-        string groupName = "Unsorted";
-        if (item.group != null && !string.IsNullOrEmpty(item.group)) groupName = item.group;
-        if (sortedItems.TryGetValue(groupName, out var list))
-        {
-          list.Add(item);
-        }
-        else
-        {
-          sortedItems.Add(groupName, [item]);
-        }
-      }
+      var baseItemManager = rootData.mainItems;
 
-      Action<ProtoFluxTool, ProtoFluxElementProxy, MenuItem, ProtoFluxNode>? currentAction = null;
-      colorX? targetColor = null;
-
-      switch (elementProxy)
-      {
-        case ProtoFluxInputProxy inputProxy:
-          {
-            currentAction = ProcessInputProxyItem;
-            targetColor = inputProxy.InputType.Value.GetTypeColor();
-            break;
-          }
-        case ProtoFluxOutputProxy outputProxy:
-          {
-            currentAction = ProcessOutputProxyItem;
-            targetColor = outputProxy.OutputType.Value.GetTypeColor();
-            break;
-          }
-        case ProtoFluxImpulseProxy impulseProxy:
-          {
-            currentAction = ProcessImpulseProxyItem;
-            break;
-          }
-        case ProtoFluxOperationProxy operationProxy:
-          {
-            currentAction = ProcessOperationProxyItem;
-            break;
-          }
-        default:
-          throw new Exception("found items for unsupported protoflux contextual action type");
-      }
-
-      if (currentAction == null) return;
-
-      if (sortedItems.Count <= 1)
-      {
-        AddSubfolder(tool, elementProxy, menu, "Wire", colorX.White, targetColor, items, currentAction, rootData);
-      }
-      else
-      {
-        foreach (var kv in sortedItems)
-        {
-          AddSubfolder(tool, elementProxy, menu, kv.Key, colorX.White, null, kv.Value, currentAction, rootData);
-        }
-      }
+      baseItemManager.CreateGroups(tool, menu, colorX.White, rootData);
 
 
-      /*if (customItems.Count != 0)
-      {
-        AddSubfolderCustom(tool, elementProxy, menu, "Custom", colorX.Orange, customItems, rootData);
-      }*/
-    });
-  }
+      var customItemManager = rootData.customItems;
 
-  private static void AddMenuFolder(ContextMenu menu, string folderName, colorX color, Action setup)
-  {
-    var label = (LocaleString)folderName;
-    var menuItem = menu.AddItem(in label, (Uri?)null, color);
-    menuItem.Button.LocalPressed += (button, data) =>
-    {
-      setup();
-    };
-  }
-
-  private static async void AddSubfolder(
-    ProtoFluxTool tool,
-    ProtoFluxElementProxy proxy,
-    ContextMenu menu,
-    string folderName,
-    colorX color,
-    colorX? itemColor,
-    List<MenuItem> items,
-    Action<ProtoFluxTool, ProtoFluxElementProxy, MenuItem, ProtoFluxNode> setup,
-    PageRootData rootData)
-  {
-    List<List<MenuItem>> PagedItems = Split(items);
-    AddMenuFolder(menu, folderName, color, () =>
-    {
-      RebuildPagedMenu(tool, proxy, itemColor, PagedItems, setup, 0, rootData);
-    });
-  }
-
-  private static void RebuildPagedMenu(
-        ProtoFluxTool tool,
-        ProtoFluxElementProxy proxy,
-        colorX? itemColor,
-        List<List<MenuItem>> PagedItems,
-        Action<ProtoFluxTool, ProtoFluxElementProxy, MenuItem, ProtoFluxNode> setup,
-        int page,
-        PageRootData rootData)
-  {
-    tool.StartTask(async () =>
-    {
-      var newMenu = await CreateContext(tool);
-      if (page == 0)
-      {
-        var label = (LocaleString)"Back";
-        var menuItem = newMenu.AddItem(in label, (Uri?)null, colorX.Red);
-        menuItem.Button.LocalPressed += (button, data) =>
-        {
-          tool.LocalUser.CloseContextMenu(tool);
-          CreateRootItems(tool, proxy, rootData);
-        };
-      }
-      if (page > 0)
-      {
-        var label = (LocaleString)$"Previous Page<size=25%>\n\n</size><size=75%>({page}/{PagedItems.Count})</size>";
-        var menuItem = newMenu.AddItem(in label, (Uri?)null, colorX.Orange);
-        menuItem.Button.LocalPressed += (button, data) =>
-        {
-          tool.LocalUser.CloseContextMenu(tool);
-          RebuildPagedMenu(tool, proxy, itemColor, PagedItems, setup, page - 1, rootData);
-        };
-      }
-      foreach (var item in PagedItems[page])
-      {
-        colorX targetColor = itemColor ?? item.node.GetTypeColor();
-        AddMenuItem(tool, proxy, newMenu, targetColor, item, setup);
-      }
-      if (PagedItems.Count - 1 > page)
-      {
-        var label = (LocaleString)$"Next Page<size=25%>\n\n</size><size=75%>({page + 2}/{PagedItems.Count})</size>";
-        var menuItem = newMenu.AddItem(in label, (Uri?)null, colorX.Cyan);
-        menuItem.Button.LocalPressed += (button, data) =>
-        {
-          tool.LocalUser.CloseContextMenu(tool);
-          RebuildPagedMenu(tool, proxy, itemColor, PagedItems, setup, page + 1, rootData);
-        };
-      }
+      customItemManager.CreateGroups(tool, menu, colorX.Orange, rootData, "Custom");
     });
   }
 
@@ -411,22 +326,18 @@ internal static class ContextualSelectionActionsPatch
       .ToList();
   }
 
-  private static void AddMenuItem(ProtoFluxTool __instance, ProtoFluxElementProxy proxy, ContextMenu menu, colorX color, MenuItem item, Action<ProtoFluxTool, ProtoFluxElementProxy, MenuItem, ProtoFluxNode> setup)
+  
+
+  private static void BaseMenuSetup(ProtoFluxTool tool, ProtoFluxElementProxy proxy, MenuItem item, Action<ProtoFluxTool, ProtoFluxElementProxy, MenuItem, ProtoFluxNode> setup)
   {
-    var nodeMetadata = NodeMetadataHelper.GetMetadata(item.node);
-    var label = (LocaleString)item.DisplayName;
-    var menuItem = menu.AddItem(in label, (Uri?)null, color);
-    menuItem.Button.LocalPressed += (button, data) =>
+    var nodeBinding = item.binding ?? ProtoFluxHelper.GetBindingForNode(item.node);
+    tool.SpawnNode(nodeBinding, n =>
     {
-      var nodeBinding = item.binding ?? ProtoFluxHelper.GetBindingForNode(item.node);
-      __instance.SpawnNode(nodeBinding, n =>
-      {
-        n.EnsureElementsInDynamicLists();
-        setup(__instance, proxy, item, n);
-        __instance.LocalUser.CloseContextMenu(__instance);
-        CleanupDraggedWire(__instance);
-      });
-    };
+      n.EnsureElementsInDynamicLists();
+      setup(tool, proxy, item, n);
+      tool.LocalUser.CloseContextMenu(tool);
+      CleanupDraggedWire(tool);
+    });
   }
 
   #endregion
@@ -653,8 +564,10 @@ internal static class ContextualSelectionActionsPatch
           yield return new MenuItem(transposeNodeType, name: "Transpose", group: "Conversion");
         }
 
-
-        yield return new(psuedoGenericTypes.Mask.First(n => n.Types.First() == outputType).Node, group: "Selection");
+        if (psuedoGenericTypes.Mask.Any(n => n.Types.First() == outputType))
+        {
+          yield return new(psuedoGenericTypes.Mask.First(n => n.Types.First() == outputType).Node, group: "Selection");
+        }
       }
     }
   }
@@ -1226,13 +1139,6 @@ internal static class ContextualSelectionActionsPatch
         yield return new MenuItem(dtOperationType.MakeGenericType(typeof(float)), group: "Time");
       }
     }
-    if (outputType == typeof(float))
-    {
-      yield return new MenuItem(typeof(WorldTimeFloat));
-      yield return new MenuItem(typeof(WorldTime2Float));
-      yield return new MenuItem(typeof(WorldTimeTenthFloat));
-    }
-
 
     var outputNode = outputProxy.Node.Target.NodeInstance;
     Type? nodeVariable = GetIVariableValueType(outputNode.GetType());
@@ -1423,6 +1329,13 @@ internal static class ContextualSelectionActionsPatch
     else if (inputType == typeof(Uri))
     {
       yield return new MenuItem(typeof(StringToAbsoluteURI), group: "Uri");
+    }
+
+    if (inputType == typeof(float))
+    {
+      yield return new MenuItem(typeof(WorldTimeFloat), group: "Time");
+      yield return new MenuItem(typeof(WorldTime2Float), group: "Time");
+      yield return new MenuItem(typeof(WorldTimeTenthFloat), group: "Time");
     }
 
     else if (TypeUtils.MatchInterface(inputType, typeof(IQuantity<>), out var quantityType))

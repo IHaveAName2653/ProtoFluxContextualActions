@@ -107,13 +107,17 @@ public static class FluxRecipeConfig
     }
   }
 
-  public struct PartialMenuItem(string Name, FluxRecipe recipe, Action<ProtoFluxTool, ProtoFluxElementProxy, FluxRecipe> onMenuPress)
+  public struct PartialMenuItem(string Name, FluxRecipe recipe, Action<ProtoFluxTool, ProtoFluxElementProxy, FluxRecipe> onMenuPress) : IPageItems
   {
     public string DisplayName = Name;
 
     public FluxRecipe recipe = recipe;
 
     public Action<ProtoFluxTool, ProtoFluxElementProxy, FluxRecipe> onMenuPress = onMenuPress;
+
+    public string? GetDisplayName() => DisplayName;
+    public string? GetGroup() => "Custom";
+    public Type? GetNodeType() => recipe.NodeDefinitions[0].NodeType;
   }
 
   public static IEnumerable<PartialMenuItem> GetItems(ProtoFluxTool tool, ProtoFluxElementProxy proxy)
