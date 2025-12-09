@@ -212,6 +212,7 @@ public class RecipeMakerDynOverride : DynOverride
 
 /// <summary>
 /// Legacy Interface for Recipes. Handles everything to do with recipes, including Finding, Getting, Constructing and Adding.
+/// NOTE: Do not use this interface. This is just so anything that uses the old interface doesnt break
 /// </summary>
 public class LegacyRecipeStringInterface : DynOverride
 {

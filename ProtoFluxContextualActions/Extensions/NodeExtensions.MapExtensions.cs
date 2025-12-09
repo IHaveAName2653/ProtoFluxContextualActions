@@ -39,12 +39,16 @@ public static class MapExtensions
   {
     foreach (var source in from.AllGlobalRefElements())
     {
-      var globalRef = to.GetGlobalRef(source.ElementIndex);
-      if (undoable) globalRef.CreateUndoPoint(forceNew: true);
-      if (source.Target is Global global)
+      try
       {
-        globalRef.Target = (IWorldElement)to.Group.GetGlobal(global.Index);
+        var globalRef = to.GetGlobalRef(source.ElementIndex);
+        if (undoable) globalRef.CreateUndoPoint(forceNew: true);
+        if (source.Target is Global global)
+        {
+          globalRef.Target = (IWorldElement)to.Group.GetGlobal(global.Index);
+        }
       }
+      catch { }
     }
   }
 
