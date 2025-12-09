@@ -92,6 +92,7 @@ internal class BindFile
 
   public static Bind TemplateBind => new()
   {
+    bindID = "Template_Select_0",
     Action = Target.Select,
     IsDesktopBind = true,
     Inputs = [

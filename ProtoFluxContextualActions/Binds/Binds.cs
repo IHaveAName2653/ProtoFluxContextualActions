@@ -1,7 +1,9 @@
-﻿using Newtonsoft.Json;
+﻿using Elements.Core;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using static ProtoFluxContextualActions.BindGetters;
 
 namespace ProtoFluxContextualActions;
@@ -111,5 +113,31 @@ public class Binds
     }
 
     return Target.None;
+  }
+
+  internal static Dictionary<string, Bind> GetBindIDs()
+  {
+    Dictionary<string, Bind> outputDict = [];
+    int inc = 0;
+    for (int i = 0; i < FluxBinds.Count; i++)
+    {
+      Bind thisBind = FluxBinds[i];
+      if (string.IsNullOrEmpty(thisBind.bindID))
+      {
+        thisBind.bindID = $"Bind_{thisBind.Action.ToString()}_{inc}";
+        FluxBinds[i] = thisBind;
+        inc++;
+      }
+      if (outputDict.ContainsKey(thisBind.bindID))
+      {
+        FluxBinds.RemoveAt(i);
+        i--;
+        continue;
+      }
+      
+      outputDict.Add(thisBind.bindID, thisBind);
+    }
+    if (inc > 0) BindFile.WriteIntoConfig();
+    return outputDict;
   }
 }

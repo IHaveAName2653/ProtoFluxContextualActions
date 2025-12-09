@@ -231,4 +231,5 @@ public struct Bind
   public Target Action;
   public List<Control> Inputs;
   public bool IsDesktopBind;
+  public string bindID;
 }
