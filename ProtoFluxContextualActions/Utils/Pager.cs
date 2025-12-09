@@ -25,10 +25,9 @@ public interface IMenuNode
 }
 public interface IPageItems : IGroup, IName, IMenuNode { }
 
-
 internal class Pager<T> where T : IPageItems
 {
-  internal const int MAX_PER_PAGE = 8;
+  internal static int MAX_PER_PAGE => ProtoFluxContextualActions.GetMaxPerPage();
 
   internal static List<List<T2>> Split<T2>(IList<T2> source)
   {

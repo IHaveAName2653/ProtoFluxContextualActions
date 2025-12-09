@@ -141,6 +141,16 @@ public class ProtoFluxContextualActions : ResoniteMod
 
 
   [AutoRegisterConfigKey]
+  public static readonly ModConfigurationKey<int> MaxPerPage = new ModConfigurationKey<int>("Max Per Page", "How many items can show up on one page", () => 8);
+
+  [AutoRegisterConfigKey]
+  public static readonly ModConfigurationKey<float> DoubleTapSpeed = new ModConfigurationKey<float>("Double Tap Speed", "How fast a doubletap is", () => 0.5f);
+
+  [AutoRegisterConfigKey]
+  public static readonly ModConfigurationKey<float> HoldTime = new ModConfigurationKey<float>("Hold Time", "How long to trigger a 'hold'", () => 0.5f);
+
+
+  [AutoRegisterConfigKey]
   public static readonly ModConfigurationKey<bool> AlternateDefaults = new ModConfigurationKey<bool>("Alternate Defaults", "If the activation binds are the alternate set.", () => false);
 
   [AutoRegisterConfigKey]
@@ -163,6 +173,18 @@ public class ProtoFluxContextualActions : ResoniteMod
     ModConfiguration? config = Config;
     if (config != null) return config.GetValue(key) ?? Default;
     return Default;
+  }
+  public static int GetMaxPerPage()
+  {
+    return GetConfig(MaxPerPage, 8);
+  }
+  public static float GetDoubleTapSpeed()
+  {
+    return GetConfig(DoubleTapSpeed, 0.5f);
+  }
+  public static float GetHoldTime()
+  {
+    return GetConfig(HoldTime, 0.5f);
   }
   public static bool UseAlternateDefaults()
   {
@@ -193,4 +215,5 @@ public class ProtoFluxContextualActions : ResoniteMod
   {
     return GetConfig(ArgsUseIndexFirst, false);
   }
+  
 }

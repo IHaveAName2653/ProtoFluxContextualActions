@@ -74,6 +74,8 @@ internal class FluxBindPatch
 
     if (__instance.LocalUser.IsContextMenuOpen()) __instance.LocalUser.CloseContextMenu(__instance);
 
+    data.ResetHolds();
+
     ProtoFluxElementProxy? proxy = ____currentProxy.Target;
 
     // Call the functions

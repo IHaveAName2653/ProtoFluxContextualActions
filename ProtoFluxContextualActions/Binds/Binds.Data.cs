@@ -31,12 +31,12 @@ public struct BindData
   public bool releasedThisUpdate;
   public bool isDoublePress;
 
-  public readonly bool IsHeld => currentlyPressed && TimeSincePressed > 0.5f;
+  public readonly bool IsHeld => currentlyPressed && TimeSincePressed > ProtoFluxContextualActions.GetHoldTime();
   public readonly double TimeSincePressed => (DateTime.Now - lastPressedTime.GetValueOrDefault()).TotalSeconds;
 
   public void Update(bool state)
   {
-    if (TimeSincePressed < 0.5f && state) isDoublePress = true;
+    if (TimeSincePressed < ProtoFluxContextualActions.GetDoubleTapSpeed() && state) isDoublePress = true;
 
     pressedThisUpdate = false;
     releasedThisUpdate = false;
@@ -51,6 +51,11 @@ public struct BindData
 
     if (pressedThisUpdate) lastPressedTime = DateTime.Now;
   }
+
+  public void ResetHolds()
+  {
+    lastPressedTime = new DateTime(3000, 1, 1);
+  }
 }
 public struct SidedBinds
 {
@@ -61,6 +66,11 @@ public struct SidedBinds
   {
     Primary.Update(VRRight || DesktopRight);
     Opposite.Update(VRLeft || DesktopLeft);
+  }
+  public void ResetHolds()
+  {
+    Primary.ResetHolds();
+    Opposite.ResetHolds();
   }
 }
 public class ProtoFluxToolData
@@ -143,11 +153,11 @@ public class ProtoFluxToolData
 
   public void ResetHolds()
   {
-    // Probably doesnt even need to be implemented
-    // But, will leave it here anyways.
-
-    // Usecase: Reset the hold times of every bind. set to far in the future as to not retrigger any time soon.
-    // Hold times are reset on press, so there isnt a concern doing this.
+    Secondary.ResetHolds();
+    Menu.ResetHolds();
+    Primary.ResetHolds();
+    Grip.ResetHolds();
+    Touch.ResetHolds();
   }
 }
 
