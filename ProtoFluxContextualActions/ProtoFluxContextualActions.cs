@@ -79,6 +79,9 @@ public class ProtoFluxContextualActions : ResoniteMod
 
     PatchCategories();
     harmony.PatchAllUncategorized(ModAssembly);
+
+    FluxRecipeConfig.OnInit();
+    BindFile.OnInit();
   }
 
 
@@ -93,6 +96,9 @@ public class ProtoFluxContextualActions : ResoniteMod
   {
     PatchCategories();
     harmony.PatchAllUncategorized(ModAssembly);
+
+    FluxRecipeConfig.OnInit();
+    BindFile.OnInit();
   }
 #endif
 

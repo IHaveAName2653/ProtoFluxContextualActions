@@ -87,29 +87,48 @@ internal class Pager<T> where T : IPageItems
     {
       menu.AddMenuFolder(insideSubFolder, color, () =>
       {
-        foreach (var group in sortedItems)
+        tool.StartTask(async () =>
         {
-          if (group.Value.Count == 0) continue;
-          AddSubfolder(
-            tool,
-            menu,
-            group.Key,
-            color,
-            rootData
-          );
-        }
+          var newMenu = await ContextHelper.CreateContext(tool);
+          if (sortedItems.Count <= 1)
+          {
+            RebuildPagedMenu(tool, itemColor, sortedItems[sortedItems.First().Key], 0, rootData);
+          }
+          else
+          {
+            foreach (var group in sortedItems)
+            {
+              if (group.Value.Count == 0) continue;
+              AddSubfolder(
+                tool,
+                newMenu,
+                group.Key,
+                color,
+                rootData
+              );
+            }
+          }
+        });
       });
+      return;
     }
     foreach (var group in sortedItems)
     {
       if (group.Value.Count == 0) continue;
-      AddSubfolder(
-        tool,
-        menu,
-        group.Key,
-        color,
-        rootData
-      );
+      if (sortedItems.Count <= 1)
+      {
+        RebuildPagedMenu(tool, itemColor, sortedItems[sortedItems.First().Key], 0, rootData);
+      }
+      else
+      {
+        AddSubfolder(
+          tool,
+          menu,
+          group.Key,
+          color,
+          rootData
+        );
+      }
     }
   }
 

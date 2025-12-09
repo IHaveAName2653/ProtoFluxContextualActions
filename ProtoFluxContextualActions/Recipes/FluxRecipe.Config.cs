@@ -27,7 +27,7 @@ public static class FluxRecipeConfig
 {
   public static List<FluxRecipe> FluxRecipes = [];
 
-  static readonly string configPath = Path.Combine(Directory.GetCurrentDirectory(), "rml_mods", "__PFCA-Recipes.json");
+  static readonly string configPath = Path.Combine(Directory.GetCurrentDirectory(), "rml_config", "__PFCA-Recipes.json");
 
   public static void OnInit()
   {
