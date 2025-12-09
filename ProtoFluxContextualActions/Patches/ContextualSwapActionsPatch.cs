@@ -291,6 +291,7 @@ internal static partial class ContextualSwapActionsPatch
       .. KeyStateGroupItems(context),
       .. FireOnBoolGroupItems(context),
       .. WriteGroupItems(context),
+      .. LerpGroupItems(context),
       .. DynamicImpulseGroupItems(context),
       .. IsNullGroupItemsGroupItems(context),
       .. BinaryComparisonOperatorGroupItems(context),
