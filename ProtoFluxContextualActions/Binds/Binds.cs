@@ -2,13 +2,7 @@
 using Newtonsoft.Json.Converters;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection.Metadata.Ecma335;
-using System.Text;
-using System.Threading.Tasks;
-using static FrooxEngine.DynamicBoneChain;
 using static ProtoFluxContextualActions.BindGetters;
-using static ProtoFluxContextualActions.Patches.ContextualSwapActionsPatch;
 
 namespace ProtoFluxContextualActions;
 
