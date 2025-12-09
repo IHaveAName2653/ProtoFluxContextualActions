@@ -62,7 +62,7 @@ internal static partial class ContextualSwapActionsPatch
       var hitNode = hitSlot.GetComponentInParents<ProtoFluxNode>();
       if (hitNode != null)
       {
-        CreateMenu(tool, hitNode);
+        CreateMenu(tool, hitNode, elementProxy);
         // skip rest
         return false;
       }
@@ -71,11 +71,11 @@ internal static partial class ContextualSwapActionsPatch
     return true;
   }
 
-  private static void CreateMenu(ProtoFluxTool tool, ProtoFluxNode hitNode)
+  private static void CreateMenu(ProtoFluxTool tool, ProtoFluxNode hitNode, ProtoFluxElementProxy proxy)
   {
     tool.StartTask(async () =>
     {
-      var items = GetMenuItems(tool, hitNode).Where(m => m.node != hitNode.NodeType).Take(10).ToArray();
+      var items = GetMenuItems(tool, hitNode, proxy).Where(m => m.node != hitNode.NodeType).Take(12).ToArray();
 
       var query = new NodeQueryAcceleration(hitNode.NodeInstance.Runtime.Group);
 
@@ -187,13 +187,11 @@ internal static partial class ContextualSwapActionsPatch
     };
   }
 
-  internal static IEnumerable<MenuItem> GetMenuItems(ProtoFluxTool __instance, ProtoFluxNode nodeComponent)
+  internal static IEnumerable<MenuItem> GetMenuItems(ProtoFluxTool __instance, ProtoFluxNode nodeComponent, ProtoFluxElementProxy elementProxy)
   {
     var node = nodeComponent.NodeInstance;
     var nodeType = node.GetType();
-    var _currentProxy = Traverse.Create(__instance).Field("_currentProxy").GetValue<SyncRef<ProtoFluxElementProxy>>();
-    var target = _currentProxy?.Target;
-    var context = new ContextualContext(nodeType, __instance.World, target);
+    var context = new ContextualContext(nodeType, __instance.World, elementProxy);
 
     IEnumerable<MenuItem> menuItems = [
       .. UserRootSwapGroups(nodeType),
