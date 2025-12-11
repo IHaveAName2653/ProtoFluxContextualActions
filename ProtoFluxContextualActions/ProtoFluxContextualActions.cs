@@ -152,6 +152,13 @@ public class ProtoFluxContextualActions : ResoniteMod
   [AutoRegisterConfigKey]
   public static readonly ModConfigurationKey<float> HoldTime = new ModConfigurationKey<float>("Hold Time", "How long to trigger a 'hold'", () => 0.5f);
 
+  [AutoRegisterConfigKey]
+  public static readonly ModConfigurationKey<bool> UseNullProxies = new ModConfigurationKey<bool>("Use Null Proxies", "If the selection action can be triggered with no proxy held", () => false);
+
+
+  [AutoRegisterConfigKey]
+  public static readonly ModConfigurationKey<bool> OnlyUseCustomBinds = new ModConfigurationKey<bool>("Only Use Custom Binds", "If only custom binds will be used. if true, actions will only activate if a custom bind is set.", () => false);
+
 
   [AutoRegisterConfigKey]
   public static readonly ModConfigurationKey<bool> AlternateDefaults = new ModConfigurationKey<bool>("Alternate Defaults", "If the activation binds are the alternate set.", () => false);
@@ -192,6 +199,14 @@ public class ProtoFluxContextualActions : ResoniteMod
   public static float GetHoldTime()
   {
     return GetConfig(HoldTime, 0.5f);
+  }
+  public static bool GetUseNullProxies()
+  {
+    return GetConfig(UseNullProxies, true);
+  }
+  public static bool GetOnlyUseCustomBinds()
+  {
+    return GetConfig(OnlyUseCustomBinds, true);
   }
   public static bool UseAlternateDefaults()
   {

@@ -14,10 +14,10 @@ public class Binds
 
   internal static Target GetBind(ProtoFluxToolData data)
   {
-    if (FluxBinds.Count == 0) return GetAltDefaultBind(data);
     Target? customBind = TryGetCustomBind(data);
-    if (customBind == null) return GetAltDefaultBind(data);
-    return customBind.Value;
+    if (customBind != null) return customBind.Value;
+    if (!ProtoFluxContextualActions.GetOnlyUseCustomBinds()) return GetDefaultOrAltBind(data);
+    return Target.None;
   }
 
   internal static Target? TryGetCustomBind(ProtoFluxToolData data)

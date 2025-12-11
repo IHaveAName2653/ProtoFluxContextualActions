@@ -299,7 +299,7 @@ internal static class ContextualSelectionActionsPatch
   {
     tool.StartTask(async () =>
     {
-      var menu = await CreateContext(tool);
+      var menu = await ContextHelper.CreateContext(tool);
 
       var baseItemManager = rootData.mainItems;
 
@@ -315,23 +315,6 @@ internal static class ContextualSelectionActionsPatch
   #endregion
 
   #region Utils
-
-  private static async Task<ContextMenu> CreateContext(this ProtoFluxTool tool)
-  {
-    var newMenu = await tool.LocalUser.OpenContextMenu(tool, tool.Slot);
-    Traverse.Create(newMenu).Field<float?>("_speedOverride").Value = 10; // Should allow for consistent flicking
-    return newMenu;
-  }
-  private static List<List<T>> Split<T>(IList<T> source)
-  {
-    return source
-      .Select((x, i) => new { Index = i, Value = x })
-      .GroupBy(x => x.Index / MAX_PER_PAGE)
-      .Select(x => x.Select(v => v.Value).ToList())
-      .ToList();
-  }
-
-  
 
   private static void BaseMenuSetup(ProtoFluxTool tool, ProtoFluxElementProxy proxy, MenuItem item, Action<ProtoFluxTool, ProtoFluxElementProxy, MenuItem, ProtoFluxNode> setup)
   {
@@ -1019,13 +1002,6 @@ internal static class ContextualSelectionActionsPatch
     if (outputType == typeof(object))
     {
       yield return new MenuItem(typeof(ToString_object), group: "String Operations");
-    }
-
-    if (outputType == typeof(bool) || outputType == typeof(bool2) || outputType == typeof(bool3) || outputType == typeof(bool4))
-    {
-      yield return new(psuedoGenericTypes.AND.First(n => n.Types.First() == outputType).Node);
-      yield return new(psuedoGenericTypes.OR.First(n => n.Types.First() == outputType).Node);
-      yield return new(psuedoGenericTypes.NOT.First(n => n.Types.First() == outputType).Node);
     }
 
     if (outputType.IsEnum)

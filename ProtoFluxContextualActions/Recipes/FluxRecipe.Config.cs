@@ -168,11 +168,11 @@ public static class FluxRecipeConfig
 
       List<Type> InvalidTypes =
       [
-          typeof(ExternalImpulseDisplay<>),
-                typeof(ExternalObjectInput<,>),
-                typeof(ExternalValueInput<,>),
-                typeof(ExternalObjectDisplay<,>),
-                typeof(ExternalValueDisplay<,>)
+        typeof(ExternalImpulseDisplay<>),
+        typeof(ExternalObjectInput<,>),
+        typeof(ExternalValueInput<,>),
+        typeof(ExternalObjectDisplay<,>),
+        typeof(ExternalValueDisplay<,>)
       ];
 
       for (int i = 0; i < spawningTypes.Count; i++)
@@ -458,13 +458,23 @@ public static class FluxRecipeConfig
       ProtoFluxNode node = nodes[i];
       NodeConnectionValues.TryGetValue(i, out List<byte3>? connections);
       Type thisNodeType = node.NodeType;
+      object? extraNodeData = null;
+      if (thisNodeType.IsGenericType && thisNodeType.GetGenericTypeDefinition() == typeof(FrooxEngine.ProtoFlux.Runtimes.Execution.Nodes.ValueInput<>))
+      {
+        var syncValue = Convert.ChangeType(node.GetSyncMember(3), typeof(Sync<>).MakeGenericType(thisNodeType.GenericTypeArguments[0]));
+        if (syncValue != null)
+        {
+          extraNodeData = Traverse.Create(syncValue).Field("Value").GetValue();
+        }
+      }
       NodeDef thisNode = new()
       {
         NodeType = thisNodeType,
         IsRoot = node == rootNodeNode,
         IsTypeNull = thisNodeType == null,
         NodeConnections = connections ?? [],
-        Offset = relativePos(node)
+        Offset = relativePos(node),
+        ObjectData = extraNodeData
       };
 
       newRecipe.NodeDefinitions.Add(thisNode);

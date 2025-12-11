@@ -71,6 +71,7 @@ internal class FluxBindPatch
     if (targetFunction == null) return true;
     if (targetFunction == Target.None) return true;
     if (data.GrabbedReference == null && targetFunction == Target.Reference) return true; // Dont try reference if nothing held
+    if (!data.HasProxy && !ProtoFluxContextualActions.GetUseNullProxies()) return true;
 
     if (__instance.LocalUser.IsContextMenuOpen()) __instance.LocalUser.CloseContextMenu(__instance);
 
