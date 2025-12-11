@@ -202,11 +202,11 @@ public class ProtoFluxContextualActions : ResoniteMod
   }
   public static bool GetUseNullProxies()
   {
-    return GetConfig(UseNullProxies, true);
+    return GetConfig(UseNullProxies, false);
   }
   public static bool GetOnlyUseCustomBinds()
   {
-    return GetConfig(OnlyUseCustomBinds, true);
+    return GetConfig(OnlyUseCustomBinds, false);
   }
   public static bool UseAlternateDefaults()
   {
