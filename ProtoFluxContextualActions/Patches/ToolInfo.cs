@@ -12,6 +12,13 @@ using System.Text;
 
 namespace ProtoFluxContextualActions.Patches;
 
+// this shit stops working the moment that hot reload is called.
+// why? why can it not just be stable??
+// it was fine before as well. so i may have to rework the commits. again.
+// dont know where it went wrong either.
+//
+// good thing this will never be implemented in the actual mod!!
+
 [HarmonyPatch]
 internal static class ToolInfo
 {
