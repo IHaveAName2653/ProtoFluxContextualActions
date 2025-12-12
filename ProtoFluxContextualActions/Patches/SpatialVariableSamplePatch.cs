@@ -9,6 +9,8 @@ using FrooxEngine.ProtoFlux.Runtimes.Execution.Nodes.FrooxEngine.Variables;
 using HarmonyLib;
 using ProtoFluxContextualActions.Utils;
 
+using Config = ProtoFluxContextualActions.ProtoFluxContextualActions;
+
 namespace ProtoFluxContextualActions.Patches;
 
 [HarmonyPatchCategory("ProtoFluxTool SpatialVariable Creation"), TweakCategory("Adds a context menu item to create SampleSpatialVariable nodes when holding a spatial variable source component with the ProtoFlux tool.")]
@@ -19,6 +21,7 @@ internal static class SpatialVariableSamplePatch
 
   internal static void Postfix(ProtoFluxTool __instance, InteractionHandler tool, ContextMenu menu)
   {
+    if (!Config.EnableSpatialMenu.GetValue()) return;
     var grabbedReference = __instance.GetGrabbedReference();
 
     if (grabbedReference != null && TypeUtils.MatchInterface(grabbedReference.GetType(), typeof(ISpatialVariable<>), out var matchedType))

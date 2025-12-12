@@ -11,6 +11,8 @@ using System.Text;
 using System.Xml.Linq;
 using static FrooxEngine.DynamicVariableSpace;
 
+using Config = ProtoFluxContextualActions.ProtoFluxContextualActions;
+
 namespace ProtoFluxContextualActions;
 
 public static class DynSpaceHelper
@@ -128,7 +130,7 @@ public static class DynSpaceHelper
   public static bool TryGetArgOrName<T>(DynamicVariableSpace space, int index, string name, out T value, bool createIfNotExist = true)
   {
     bool hasOverride = TryRead(space, "UseIndex", out bool overrideIndex);
-    bool userWantsIndex = ProtoFluxContextualActions.ReadIndexFirst();
+    bool userWantsIndex = Config.ArgsUseIndexFirst.GetValue();
     if ((hasOverride && overrideIndex) || (!hasOverride && userWantsIndex))
     {
       if (TryGetArg(space, index, out value, createIfNotExist)) return true;
@@ -151,7 +153,7 @@ public static class DynSpaceHelper
   {
     bool hadSpace = false;
     string varName = $"Return_{returnName}";
-    if (ProtoFluxContextualActions.ReadIndexFirst()) varName = $"Return_{returnIndex}";
+    if (Config.ArgsUseIndexFirst.GetValue()) varName = $"Return_{returnIndex}";
     if (ReturnVariables.TryGetValue(space, out Dictionary<Type, IDynamicVariable>? thisSpaceVars))
     {
       hadSpace = true;

@@ -10,6 +10,8 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
+using Config = ProtoFluxContextualActions.ProtoFluxContextualActions;
+
 namespace ProtoFluxContextualActions.Patches;
 
 [HarmonyPatchCategory("ProtoFluxTool DynamicVariableInput Creation"), TweakCategory("Adds a context menu item to create DynamicVariableInputs when holding a dynamic variable component with the ProtoFlux tool.")]
@@ -20,6 +22,7 @@ internal static class DynamicVariableOutputPatch
 
   internal static void Postfix(ProtoFluxTool __instance, InteractionHandler tool, ContextMenu menu)
   {
+    if (!Config.EnableDynVarMenu.GetValue()) return;
     var grabbedReference = __instance.GetGrabbedReference();
 
     if (grabbedReference != null && TypeUtils.MatchInterface(grabbedReference.GetType(), typeof(IDynamicVariable<>), out var matchedType))

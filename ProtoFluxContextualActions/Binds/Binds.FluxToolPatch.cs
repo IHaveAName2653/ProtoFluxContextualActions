@@ -20,6 +20,8 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 
+using Config = ProtoFluxContextualActions.ProtoFluxContextualActions;
+
 namespace ProtoFluxContextualActions;
 
 [HarmonyPatch(typeof(ProtoFluxTool), nameof(ProtoFluxTool.Update))]
@@ -67,11 +69,27 @@ internal class FluxBindPatch
 
 
     if (!dynOverrides) targetFunction = Binds.GetBind(data);
-
+    
     if (targetFunction == null) return true;
     if (targetFunction == Target.None) return true;
-    if (data.GrabbedReference == null && targetFunction == Target.Reference) return true; // Dont try reference if nothing held
-    if (____currentProxy.Target == null && !ProtoFluxContextualActions.GetUseNullProxies() && targetFunction == Target.Select) return true;
+
+    if (targetFunction == Target.Reference)
+    {
+      if (!Config.EnableReferenceActions.GetValue()) return true; 
+      if (data.GrabbedReference == null) return true; // Dont try reference if nothing held
+    }
+    if (targetFunction == Target.Select)
+    {
+      if (!Config.EnableSelectionActions.GetValue()) return true;
+      if (!data.HasProxy)
+      {
+        if (!Config.UseNullProxies.GetValue()) return true;
+      }
+    }
+    if (targetFunction == Target.Swap)
+    {
+      if (!Config.EnableSwapActions.GetValue()) return true;
+    }
 
     if (__instance.LocalUser.IsContextMenuOpen()) __instance.LocalUser.CloseContextMenu(__instance);
 

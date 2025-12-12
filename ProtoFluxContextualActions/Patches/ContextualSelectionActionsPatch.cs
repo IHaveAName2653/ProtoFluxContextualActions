@@ -152,7 +152,6 @@ internal static class ContextualSelectionActionsPatch
     }, () => CreateRootItems(tool, rootData));
     customItemManager.InitPagedItems(customItems, targetColor, elementProxy, ProcessCustomProxyItem, () => CreateRootItems(tool, rootData));
 
-    var rootData = new PageRootData(baseItemManager, customItemManager);
 
     CreateRootItems(tool, rootData);
 

@@ -4,7 +4,8 @@ using Newtonsoft.Json.Converters;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using static ProtoFluxContextualActions.BindGetters;
+
+using Config = ProtoFluxContextualActions.ProtoFluxContextualActions;
 
 namespace ProtoFluxContextualActions;
 
@@ -15,8 +16,14 @@ public class Binds
   internal static Target GetBind(ProtoFluxToolData data)
   {
     Target? customBind = TryGetCustomBind(data);
-    if (customBind != null) return customBind.Value;
-    if (!ProtoFluxContextualActions.GetOnlyUseCustomBinds()) return GetDefaultOrAltBind(data);
+    if (customBind != null)
+    {
+      return customBind.Value;
+    }
+    if (!Config.OnlyUseCustomBinds.GetValue())
+    {
+      return GetDefaultOrAltBind(data);
+    }
     return Target.None;
   }
 
@@ -68,7 +75,7 @@ public class Binds
 
   internal static Target GetDefaultOrAltBind(ProtoFluxToolData data)
   {
-    if (UseAlternateDefaults())
+    if (Config.AlternateDefaults.GetValue())
     {
       return GetAltDefaultBind(data);
     }
@@ -106,6 +113,7 @@ public class Binds
     else
     {
       // VR specific binds (or desktop sometimes)
+
       if (data.Secondary.Opposite.currentlyPressed && data.Menu.Primary.pressedThisUpdate) return Target.Select;
       //if (data.Menu.Primary.IsHeld && data.Secondary.Opposite.currentlyPressed) return Target.Swap;
       //if (data.Menu.Primary.IsHeld && !data.Secondary.Opposite.currentlyPressed) return Target.Selection;
@@ -144,5 +152,10 @@ public class Binds
     }
     if (inc > 0) BindFile.WriteIntoConfig();
     return outputDict;
+  }
+
+  public static bool ShouldUseDesktopBinds(ProtoFluxToolData data)
+  {
+    return !Config.DesktopUsesVRBinds.GetValue() && !data.UserInVR;
   }
 }

@@ -9,7 +9,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static ProtoFluxContextualActions.BindGetters;
+
+using Config = ProtoFluxContextualActions.ProtoFluxContextualActions;
 
 namespace ProtoFluxContextualActions;
 
@@ -31,7 +32,7 @@ public struct BindData
   public bool releasedThisUpdate;
   public bool isDoublePress;
 
-  public readonly bool IsHeld => currentlyPressed && TimeSincePressed > ProtoFluxContextualActions.GetHoldTime();
+  public readonly bool IsHeld => currentlyPressed && TimeSincePressed > Config.HoldTime.GetValue();
   public readonly double TimeSincePressed => (DateTime.Now - lastPressedTime.GetValueOrDefault()).TotalSeconds;
 
   public void Update(bool state)
@@ -137,13 +138,13 @@ public class ProtoFluxToolData
     bool VRTouchRight = PrimaryTouchController?.ThumbRestTouch.Held ?? false;
 
     // DESKTOP BINDS
-    bool DesktopMenuLeft = input.GetKey(GetMenuKey());
+    bool DesktopMenuLeft = input.GetKey(Config.MenuKey.GetValue());
     bool DesktopMenuRight = input.GetKey(Key.T);
-    bool DesktopSecondaryLeft = input.GetKey(GetSecondaryKey());
+    bool DesktopSecondaryLeft = input.GetKey(Config.SecondaryKey.GetValue());
     bool DesktopSecondaryRight = input.GetKey(Key.R);
-    bool DesktopTriggerLeft = input.GetKey(GetPrimaryKey());
+    bool DesktopTriggerLeft = input.GetKey(Config.PrimaryKey.GetValue());
     bool DesktopTriggerRight = input.Mouse.LeftButton.Held;
-    bool DesktopGripLeft = input.GetKey(GetGrabKey());
+    bool DesktopGripLeft = input.GetKey(Config.GrabKey.GetValue());
     bool DesktopGripRight = input.Mouse.RightButton.Held;
 
     Secondary.Update(VRSecondaryLeft, VRSecondaryRight, DesktopSecondaryLeft, DesktopSecondaryRight);
@@ -160,40 +161,6 @@ public class ProtoFluxToolData
     Primary.ResetHolds();
     Grip.ResetHolds();
     Touch.ResetHolds();
-  }
-}
-
-public class BindGetters
-{
-  public static bool ShouldUseDesktopBinds(ProtoFluxToolData data)
-  {
-    return !GetDesktopShouldUseVR() && !data.UserInVR;
-  }
-  public static bool UseAlternateDefaults()
-  {
-    return ProtoFluxContextualActions.UseAlternateDefaults();
-  }
-
-  public static bool GetDesktopShouldUseVR()
-  {
-    return ProtoFluxContextualActions.GetDesktopShouldUseVR();
-  }
-  public static Key GetSecondaryKey()
-  {
-
-    return ProtoFluxContextualActions.GetSecondaryKey();
-  }
-  public static Key GetMenuKey()
-  {
-    return ProtoFluxContextualActions.GetMenuKey();
-  }
-  public static Key GetPrimaryKey()
-  {
-    return ProtoFluxContextualActions.GetPrimaryKey();
-  }
-  public static Key GetGrabKey()
-  {
-    return ProtoFluxContextualActions.GetGrabKey();
   }
 }
 public enum ConditionState
