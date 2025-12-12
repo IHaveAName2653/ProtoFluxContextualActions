@@ -24,7 +24,8 @@ static partial class ContextualSwapActionsPatch
 
       static MenuItem RepeatItem(Type nodeType) => new(
         node: nodeType,
-        connectionTransferType: ConnectionTransferType.ByIndexLossy
+        connectionTransferType: ConnectionTransferType.ByIndexLossy,
+        group: "Math Operations"
       );
 
       if (coder.Property<bool>("SupportsRepeat").Value)

@@ -30,13 +30,14 @@ static partial class ContextualSwapActionsPatch
         yield return new MenuItem(
           node: mapped.MakeGenericType(binopType),
           name: mapped.GetNiceTypeName(),
-          connectionTransferType: ConnectionTransferType.ByIndexLossy
+          connectionTransferType: ConnectionTransferType.ByIndexLossy,
+          group: "Multi Math Operations"
         );
       }
       else if (MultiInputMappingGroup.TryGetFirst(genericType, out mapped))
       {
         var binopType = context.NodeType.GenericTypeArguments[0];
-        yield return new MenuItem(mapped.MakeGenericType(binopType), connectionTransferType: ConnectionTransferType.ByIndexLossy);
+        yield return new MenuItem(mapped.MakeGenericType(binopType), connectionTransferType: ConnectionTransferType.ByIndexLossy, group: "Basic Math");
       }
     }
   }

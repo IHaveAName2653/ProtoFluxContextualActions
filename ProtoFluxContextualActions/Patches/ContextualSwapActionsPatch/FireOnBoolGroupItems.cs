@@ -18,7 +18,7 @@ static partial class ContextualSwapActionsPatch
     {
       foreach (var match in FireOnBoolGroup)
       {
-        yield return new MenuItem(match);
+        yield return new MenuItem(match, group: "Impulse");
       }
     }
   }

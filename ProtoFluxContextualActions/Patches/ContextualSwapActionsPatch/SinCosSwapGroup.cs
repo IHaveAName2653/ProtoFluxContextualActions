@@ -18,11 +18,11 @@ static partial class ContextualSwapActionsPatch
 
     if (sinCosSwapMap.TryGetFirst(context.NodeType, out var sinType))
     {
-      yield return new MenuItem(sinType);
+      yield return new MenuItem(sinType, group: "Math Operations");
     }
     else if (sinCosSwapMap.TryGetSecond(context.NodeType, out var cosType))
     {
-      yield return new MenuItem(cosType);
+      yield return new MenuItem(cosType, group: "Math Operations");
     }
   }
 }

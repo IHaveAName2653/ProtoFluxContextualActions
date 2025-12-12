@@ -25,7 +25,7 @@ static partial class ContextualSwapActionsPatch
     {
       foreach (var match in ForLoopGroup)
       {
-        yield return new MenuItem(match, connectionTransferType: ConnectionTransferType.ByMappingsLossy);
+        yield return new MenuItem(match, connectionTransferType: ConnectionTransferType.ByMappingsLossy, group: "Loops");
       }
     }
   }

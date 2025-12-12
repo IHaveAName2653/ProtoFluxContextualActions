@@ -15,5 +15,5 @@ static partial class ContextualSwapActionsPatch
   ];
 
   internal static IEnumerable<MenuItem> SlotChildGroupItems(ContextualContext context) =>
-    MatchNonGenericTypes(SlotChildGroup, context.NodeType);
+    MatchNonGenericTypes(SlotChildGroup, context.NodeType, group: "Slot Children");
 }

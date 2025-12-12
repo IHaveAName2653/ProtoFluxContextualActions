@@ -24,12 +24,12 @@ static partial class ContextualSwapActionsPatch
 
       if (coder.Property<bool>("SupportsNegate").Value)
       {
-        yield return new(typeof(ValueNegate<>).MakeGenericType(opType));
+        yield return new(typeof(ValueNegate<>).MakeGenericType(opType), group: "Math Operations");
       }
 
       if (coder.Property<bool>("SupportsAddSub").Value)
       {
-        yield return new(typeof(ValuePlusMinus<>).MakeGenericType(opType));
+        yield return new(typeof(ValuePlusMinus<>).MakeGenericType(opType), group: "Math Operations");
       }
     }
   }

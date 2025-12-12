@@ -28,7 +28,7 @@ static partial class ContextualSwapActionsPatch
     {
       foreach (var match in EnumShiftGroup)
       {
-        yield return new MenuItem(match.MakeGenericType(context.NodeType.GenericTypeArguments[0]), name: match.GetNiceName());
+        yield return new MenuItem(match.MakeGenericType(context.NodeType.GenericTypeArguments[0]), name: match.GetNiceName(), group: "Enums");
       }
     }
   }
@@ -38,7 +38,7 @@ static partial class ContextualSwapActionsPatch
     if (TypeUtils.TryGetGenericTypeDefinition(context.NodeType, out var genericType) && TryGetSwap(NumberToEnumGroup, genericType, out var match))
     {
       var enumType = context.NodeType.GenericTypeArguments[0];
-      yield return new MenuItem(match.MakeGenericType(enumType));
+      yield return new MenuItem(match.MakeGenericType(enumType), group: "Enums");
     }
   }
 
@@ -47,7 +47,7 @@ static partial class ContextualSwapActionsPatch
     if (TypeUtils.TryGetGenericTypeDefinition(context.NodeType, out var genericType) && TryGetSwap(EnumToNumberGroup, genericType, out var match))
     {
       var enumType = context.NodeType.GenericTypeArguments[0];
-      yield return new(match.MakeGenericType(enumType));
+      yield return new(match.MakeGenericType(enumType), group: "Enums");
     }
   }
 }

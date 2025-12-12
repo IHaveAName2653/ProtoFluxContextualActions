@@ -32,10 +32,10 @@ static partial class ContextualSwapActionsPatch
       // in practice, https://github.com/Yellow-Dog-Man/Resonite-Issues/issues/3319
       if (coder.Property<bool>("SupportsAddSub").Value)
       {
-        yield return new(typeof(ValueInc<>).MakeGenericType(opType), connectionTransferType: ConnectionTransferType.ByIndexLossy);
-        yield return new(typeof(ValueDec<>).MakeGenericType(opType), connectionTransferType: ConnectionTransferType.ByIndexLossy);
-        yield return new(typeof(ValueIncrement<>).MakeGenericType(opType), connectionTransferType: ConnectionTransferType.ByIndexLossy);
-        yield return new(typeof(ValueDecrement<>).MakeGenericType(opType), connectionTransferType: ConnectionTransferType.ByIndexLossy);
+        yield return new(typeof(ValueInc<>).MakeGenericType(opType), connectionTransferType: ConnectionTransferType.ByIndexLossy, group: "Math Operations");
+        yield return new(typeof(ValueDec<>).MakeGenericType(opType), connectionTransferType: ConnectionTransferType.ByIndexLossy, group: "Math Operations");
+        yield return new(typeof(ValueIncrement<>).MakeGenericType(opType), connectionTransferType: ConnectionTransferType.ByIndexLossy, group: "Variables");
+        yield return new(typeof(ValueDecrement<>).MakeGenericType(opType), connectionTransferType: ConnectionTransferType.ByIndexLossy, group: "Variables");
       }
     }
   }

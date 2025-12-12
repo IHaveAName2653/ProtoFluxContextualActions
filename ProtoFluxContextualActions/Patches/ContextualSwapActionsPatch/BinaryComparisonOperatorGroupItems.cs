@@ -46,13 +46,13 @@ static partial class ContextualSwapActionsPatch
         {
           if (genericMatch.TryMakeGenericType(context.NodeType.GenericTypeArguments) is Type validType)
           {
-            yield return new(validType);
+            yield return new(validType, group: "Comparisons");
           }
         }
 
         foreach (var psuedoGenericMatch in pseudoGenericComparisonGroup.Where(n => n.Value.SequenceEqual(context.NodeType.GenericTypeArguments)).Select(a => a.Key))
         {
-          yield return new(psuedoGenericMatch);
+          yield return new(psuedoGenericMatch, group: "Comparisons");
         }
       }
       else if (ObjectComparisonBinaryOperatorGroup.Contains(genericTypeDefinition))
@@ -61,13 +61,13 @@ static partial class ContextualSwapActionsPatch
         {
           if (genericMatch.TryMakeGenericType(context.NodeType.GenericTypeArguments) is Type validType)
           {
-            yield return new(validType);
+            yield return new(validType, group: "Comparisons");
           }
         }
 
         foreach (var psuedoGenericMatch in pseudoGenericComparisonGroup.Where(n => n.Value.SequenceEqual(context.NodeType.GenericTypeArguments)).Select(a => a.Key))
         {
-          yield return new(psuedoGenericMatch);
+          yield return new(psuedoGenericMatch, group: "Comparisons");
         }
       }
     }
@@ -83,7 +83,7 @@ static partial class ContextualSwapActionsPatch
 
         foreach (var match in psuedoGenericMatches)
         {
-          yield return new(match);
+          yield return new(match, group: "Comparisons");
         }
 
         var genericNodes = genericArguments.First().IsUnmanaged()
@@ -97,7 +97,7 @@ static partial class ContextualSwapActionsPatch
 
         foreach (var match in genericMatches)
         {
-          yield return new(match);
+          yield return new(match, group: "Comparisons");
         }
       }
     }

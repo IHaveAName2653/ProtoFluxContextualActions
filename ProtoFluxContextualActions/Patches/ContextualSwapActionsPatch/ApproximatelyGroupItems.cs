@@ -22,17 +22,17 @@ static partial class ContextualSwapActionsPatch
       var matchingNodes = approximatelyGroup.Where(a => a.Value == typeArgument).Select(a => a.Key);
       foreach (var match in matchingNodes)
       {
-        yield return new MenuItem(match);
+        yield return new MenuItem(match, group: "Comparisons");
       }
 
       // todo: invert so context.NodeType.IsApproxamatelyNotNode()
       if (aproximatelyNodes.ContainsFirst(context.NodeType))
       {
-        yield return new MenuItem(typeof(ValueEquals<>).MakeGenericType(typeArgument));
+        yield return new MenuItem(typeof(ValueEquals<>).MakeGenericType(typeArgument), group: "Comparisons");
       }
       else if (aproximatelyNotNodes.ContainsFirst(context.NodeType))
       {
-        yield return new MenuItem(typeof(ValueNotEquals<>).MakeGenericType(typeArgument));
+        yield return new MenuItem(typeof(ValueNotEquals<>).MakeGenericType(typeArgument), group: "Comparisons");
       }
     }
   }

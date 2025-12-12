@@ -1,19 +1,18 @@
-using System;
 using Elements.Core;
 using FrooxEngine;
 using FrooxEngine.ProtoFlux;
-
-using ProtoFluxContextualActions.Attributes;
-using HarmonyLib;
-using System.Runtime.CompilerServices;
-using System.Collections.Generic;
-using ProtoFlux.Core;
-using System.Linq;
 using FrooxEngine.Undo;
+using HarmonyLib;
+using ProtoFlux.Core;
 using ProtoFlux.Runtimes.Execution;
+using ProtoFluxContextualActions.Attributes;
 using ProtoFluxContextualActions.Extensions;
-using ProtoFluxContextualActions.Utils.ProtoFlux;
 using ProtoFluxContextualActions.Utils;
+using ProtoFluxContextualActions.Utils.ProtoFlux;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.CompilerServices;
 
 namespace ProtoFluxContextualActions.Patches;
 
@@ -41,7 +40,7 @@ internal static partial class ContextualSwapActionsPatch
     ByIndexLossy
   }
 
-  internal readonly struct MenuItem(Type node, string? name = null, ConnectionTransferType? connectionTransferType = ConnectionTransferType.ByNameLossy)
+  internal readonly struct MenuItem(Type node, string? name = null, ConnectionTransferType? connectionTransferType = ConnectionTransferType.ByNameLossy, string? group = null) : IPageItems
   {
     internal readonly Type node = node;
 
@@ -50,6 +49,14 @@ internal static partial class ContextualSwapActionsPatch
     internal readonly ConnectionTransferType? connectionTransferType = connectionTransferType;
 
     internal readonly string DisplayName => name ?? NodeMetadataHelper.GetMetadata(node).Name ?? node.GetNiceTypeName();
+
+    internal readonly string? group = group;
+
+    public string? GetDisplayName() => DisplayName;
+
+    public string? GetGroup() => group ?? "";
+
+    public Type? GetNodeType() => node;
   }
 
   internal record ContextualContext(Type NodeType, World World, ProtoFluxElementProxy? proxy);
@@ -73,36 +80,41 @@ internal static partial class ContextualSwapActionsPatch
 
   private static void CreateMenu(ProtoFluxTool tool, ProtoFluxNode hitNode, ProtoFluxElementProxy proxy)
   {
+    var items = GetMenuItems(tool, hitNode, proxy).Where(m => m.node != hitNode.NodeType).ToList();
+
+    var query = new NodeQueryAcceleration(hitNode.NodeInstance.Runtime.Group);
+
+    if (items.Count > 0)
+    {
+      Pager<MenuItem> swapPager = new();
+
+      swapPager.InitPagedItems(items, colorX.White, proxy, (fluxTool, _, Item) =>
+      {
+        try
+        {
+          SwapHitForNode(tool, hitNode, Item);
+        }
+        finally
+        {
+          // if there's somehow an error I do not want evil dangling references that world crash silently.
+          if (hitNode != null && !hitNode.IsRemoved)
+          {
+            hitNode.UndoableDestroy();
+          }
+        }
+      }, () => RenderContextMenu(tool, swapPager));
+
+      RenderContextMenu(tool, swapPager);
+    }
+  }
+
+  internal static void RenderContextMenu(ProtoFluxTool tool, Pager<MenuItem> pagerManager)
+  {
     tool.StartTask(async () =>
     {
-      var items = GetMenuItems(tool, hitNode, proxy).Where(m => m.node != hitNode.NodeType).Take(12).ToArray();
+      var menu = await ContextHelper.CreateContext(tool);
 
-      var query = new NodeQueryAcceleration(hitNode.NodeInstance.Runtime.Group);
-
-      if (items.Length > 0)
-      {
-        var menu = await ContextHelper.CreateContext(tool);
-        // TODO: pages / custom menus
-
-        foreach (var menuItem in items)
-        {
-          AddMenuItem(tool, menu, colorX.White, menuItem, () =>
-          {
-            try
-            {
-              SwapHitForNode(tool, hitNode, menuItem);
-            }
-            finally
-            {
-              // if there's somehow an error I do not want evil dangling references that world crash silently.
-              if (hitNode != null && !hitNode.IsRemoved)
-              {
-                hitNode.UndoableDestroy();
-              }
-            }
-          });
-        }
-      }
+      pagerManager.CreateGroups(tool, menu, colorX.White);
     });
   }
 
@@ -269,24 +281,24 @@ internal static partial class ContextualSwapActionsPatch
   internal static string FormatMultiName(Type match) =>
     $"{NodeMetadataHelper.GetMetadata(match).Name} (Multi)";
 
-  internal static IEnumerable<MenuItem> MatchNonGenericTypes(ICollection<Type> types, Type type)
+  internal static IEnumerable<MenuItem> MatchNonGenericTypes(ICollection<Type> types, Type type, string? group = null)
   {
     if (types.Contains(type))
     {
       foreach (var match in types)
       {
-        yield return new MenuItem(match);
+        yield return new MenuItem(match, group: group);
       }
     }
   }
 
-  internal static IEnumerable<MenuItem> MatchGenericTypes(ISet<Type> types, Type type)
+  internal static IEnumerable<MenuItem> MatchGenericTypes(ISet<Type> types, Type type, string? group = null)
   {
     if (TypeUtils.TryGetGenericTypeDefinition(type, out var genericType) && types.Contains(genericType))
     {
       foreach (var match in types)
       {
-        yield return new MenuItem(match.MakeGenericType(type.GenericTypeArguments));
+        yield return new MenuItem(match.MakeGenericType(type.GenericTypeArguments), group: group);
       }
     }
   }

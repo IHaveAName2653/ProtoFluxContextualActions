@@ -18,7 +18,7 @@ static partial class ContextualSwapActionsPatch
     {
       foreach (var match in ObjectRelayGroup)
       {
-        yield return new MenuItem(match.MakeGenericType(context.NodeType.GenericTypeArguments));
+        yield return new MenuItem(match.MakeGenericType(context.NodeType.GenericTypeArguments), group: "Relay");
       }
     }
   }

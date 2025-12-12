@@ -15,5 +15,5 @@ static partial class ContextualSwapActionsPatch
   ];
 
   internal static IEnumerable<MenuItem> IsNullGroupItemsGroupItems(ContextualContext context) =>
-    MatchGenericTypes(IsNullGroupItems, context.NodeType);
+    MatchGenericTypes(IsNullGroupItems, context.NodeType, group: "Comparisons");
 }

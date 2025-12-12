@@ -21,7 +21,7 @@ static partial class ContextualSwapActionsPatch
     {
       foreach (var match in GetDirectionGroup)
       {
-        yield return new(match);
+        yield return new(match, group: "Directions");
       }
     }
   }

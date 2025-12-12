@@ -19,12 +19,12 @@ static partial class ContextualSwapActionsPatch
       var matchingNodes = group.Where(a => a.Value.SequenceEqual(context.NodeType.GenericTypeArguments)).Select(a => a.Key);
       foreach (var match in matchingNodes)
       {
-        yield return new(match, connectionTransferType: ConnectionTransferType.ByIndexLossy);
+        yield return new(match, connectionTransferType: ConnectionTransferType.ByIndexLossy, group: "Math Operations");
       }
     }
     else if (group.TryGetValue(context.NodeType, out var genericTypes))
     {
-      yield return new(typeof(ValueRepeat<>).MakeGenericType([.. genericTypes]), connectionTransferType: ConnectionTransferType.ByIndexLossy);
+      yield return new(typeof(ValueRepeat<>).MakeGenericType([.. genericTypes]), connectionTransferType: ConnectionTransferType.ByIndexLossy, group: "Math Operations");
     }
 
   }

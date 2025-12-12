@@ -25,7 +25,7 @@ static partial class ContextualSwapActionsPatch
       var innerType = context.NodeType.GenericTypeArguments[0];
       foreach (var match in MinMaxMultiGroup)
       {
-        yield return new MenuItem(match.MakeGenericType(innerType));
+        yield return new MenuItem(match.MakeGenericType(innerType), group: "Multi Math");
       }
 
       var matchingNodes = avgGroup
@@ -38,7 +38,8 @@ static partial class ContextualSwapActionsPatch
         yield return new MenuItem(
           node: match,
           name: FormatMultiName(match),
-          connectionTransferType: ConnectionTransferType.ByIndexLossy
+          connectionTransferType: ConnectionTransferType.ByIndexLossy,
+          group: "Multi Math"
         );
       }
     }

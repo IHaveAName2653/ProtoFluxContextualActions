@@ -1,5 +1,6 @@
 using Elements.Core;
 using FrooxEngine.ProtoFlux;
+using ProtoFlux.Core;
 using ProtoFlux.Runtimes.Execution.Nodes.Actions;
 using System;
 using System.Collections.Generic;
@@ -30,15 +31,15 @@ static partial class ContextualSwapActionsPatch
   {
     if (DynamicImpulseGroup.Any(t => context.NodeType.IsGenericType ? t == context.NodeType.GetGenericTypeDefinition() : t == context.NodeType))
     {
-      List<Type> DynOutputs = [
-        typeof(DynamicImpulseTrigger),
-        typeof(DynamicImpulseReceiver),
-        typeof(AsyncDynamicImpulseTrigger),
-        typeof(AsyncDynamicImpulseReceiver)
-      ];
+      bool IsTrigger = context.NodeType.GetNiceTypeName().Contains("DynamicImpulseTrigger");
+      bool IsAsync = context.NodeType.GetNiceTypeName().StartsWith("Async");
+
+      Type? dynTrigData = null, dynRecData = null, asyncDynTrigData = null, asyncDynRecData = null;
 
       Type? target = null;
       bool hasProxyHeld = false;
+      bool hasDynData = false;
+
       if (context.proxy is ProtoFluxInputProxy)
       {
         ProtoFluxInputProxy inputType = (ProtoFluxInputProxy)(context.proxy);
@@ -62,45 +63,67 @@ static partial class ContextualSwapActionsPatch
 
       if (target != null)
       {
-        var DynTrigger = GetNodeForType(target, [
+        var DynTrigger = ToolInfo.GetNodeForType(target, [
           new NodeTypeRecord(typeof(DynamicImpulseTriggerWithValue<>), null, null),
           new NodeTypeRecord(typeof(DynamicImpulseTriggerWithObject<>), null, null),
         ]);
-        var AsyncDynTrigger = GetNodeForType(target, [
+        dynTrigData = DynTrigger;
+
+        var AsyncDynTrigger = ToolInfo.GetNodeForType(target, [
           new NodeTypeRecord(typeof(AsyncDynamicImpulseTriggerWithValue<>), null, null),
           new NodeTypeRecord(typeof(AsyncDynamicImpulseTriggerWithObject<>), null, null),
         ]);
+        asyncDynTrigData = AsyncDynTrigger;
 
-        var DynReceiver = GetNodeForType(target, [
+        var DynReceiver = ToolInfo.GetNodeForType(target, [
           new NodeTypeRecord(typeof(DynamicImpulseReceiverWithValue<>), null, null),
           new NodeTypeRecord(typeof(DynamicImpulseReceiverWithObject<>), null, null),
         ]);
+        dynRecData = DynReceiver;
 
-        var AsyncDynReceiver = GetNodeForType(target, [
+        var AsyncDynReceiver = ToolInfo.GetNodeForType(target, [
           new NodeTypeRecord(typeof(AsyncDynamicImpulseReceiverWithValue<>), null, null),
           new NodeTypeRecord(typeof(AsyncDynamicImpulseReceiverWithObject<>), null, null),
         ]);
+        asyncDynRecData = AsyncDynReceiver;
 
-        if (hasProxyHeld)
-        {
-          DynOutputs.Insert(0, AsyncDynReceiver);
-          DynOutputs.Insert(0, AsyncDynTrigger);
-          DynOutputs.Insert(0, DynReceiver);
-          DynOutputs.Insert(0, DynTrigger);
-        }
-        else
-        {
-          DynOutputs.Add(DynTrigger);
-          DynOutputs.Add(DynReceiver);
-          DynOutputs.Add(AsyncDynTrigger);
-          DynOutputs.Add(AsyncDynReceiver);
-        }
+        hasDynData = true;
       }
 
-      
-      foreach (Type dynType in DynOutputs)
+      Dictionary<bool3, Type?> keyedImpulses = new()
       {
-        yield return new(dynType);
+        { new(false, true, false), typeof(DynamicImpulseTrigger) },
+        { new(false, false, false), typeof(DynamicImpulseReceiver) },
+        { new(true, true, false), typeof(AsyncDynamicImpulseTrigger) },
+        { new(true, false, false), typeof(AsyncDynamicImpulseReceiver) },
+
+        { new(false, true, true), dynTrigData },
+        { new(false, false, true), dynRecData },
+        { new(true, true, true), asyncDynTrigData },
+        { new(true, false, true), asyncDynRecData },
+      };
+
+      List<Type?> sortedImpulses = keyedImpulses
+        .Where(kv => !kv.Key.x)
+        .OrderBy(kv => IsTrigger ? kv.Key.y : false)
+        .OrderBy(kv => hasProxyHeld ? kv.Key.z : false)
+        .Select(kv => kv.Value)
+        .ToList();
+
+      List<Type?> sortedAsyncImpulses = keyedImpulses
+        .Where(kv => !kv.Key.x)
+        .OrderBy(kv => IsTrigger ? kv.Key.y : false)
+        .OrderBy(kv => hasProxyHeld ? kv.Key.z : false)
+        .Select(kv => kv.Value)
+        .ToList();
+
+      foreach (var imp in sortedImpulses)
+      {
+        yield return new(imp, group: "Dynamic Impulses");
+      }
+      foreach (var imp in sortedAsyncImpulses)
+      {
+        yield return new(imp, group: "Async Dynamic Impulses");
       }
     }
   }

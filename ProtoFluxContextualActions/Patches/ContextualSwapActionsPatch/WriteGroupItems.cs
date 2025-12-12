@@ -41,7 +41,7 @@ static partial class ContextualSwapActionsPatch
       {
         foreach (var match in ValueWriteGroup)
         {
-          yield return new MenuItem(match.MakeGenericType(context.NodeType.GenericTypeArguments));
+          yield return new MenuItem(match.MakeGenericType(context.NodeType.GenericTypeArguments), group: "Variables");
         }
       }
 
@@ -49,7 +49,7 @@ static partial class ContextualSwapActionsPatch
       {
         foreach (var match in ValueWriteWithContextGroup)
         {
-          yield return new MenuItem(match.MakeGenericType(context.NodeType.GenericTypeArguments));
+          yield return new MenuItem(match.MakeGenericType(context.NodeType.GenericTypeArguments), group: "Variables");
         }
       }
 
@@ -57,7 +57,7 @@ static partial class ContextualSwapActionsPatch
       {
         foreach (var match in ObjectWriteGroup)
         {
-          yield return new MenuItem(match.MakeGenericType(context.NodeType.GenericTypeArguments));
+          yield return new MenuItem(match.MakeGenericType(context.NodeType.GenericTypeArguments), group: "Variables");
         }
       }
 
@@ -65,7 +65,7 @@ static partial class ContextualSwapActionsPatch
       {
         foreach (var match in ObjectWriteWithContextGroup)
         {
-          yield return new MenuItem(match.MakeGenericType(context.NodeType.GenericTypeArguments));
+          yield return new MenuItem(match.MakeGenericType(context.NodeType.GenericTypeArguments), group: "Variables");
         }
       }
     }

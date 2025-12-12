@@ -49,30 +49,31 @@ static partial class ContextualSwapActionsPatch
 
         if (coder.Property<bool>("SupportsAddSub").Value)
         {
-          yield return new MenuItem(typeof(ValueAdd<>).MakeGenericType(opType), connectionTransferType: ConnectionTransferType.ByIndexLossy);
-          yield return new MenuItem(typeof(ValueSub<>).MakeGenericType(opType), connectionTransferType: ConnectionTransferType.ByIndexLossy);
+          yield return new MenuItem(typeof(ValueAdd<>).MakeGenericType(opType), connectionTransferType: ConnectionTransferType.ByIndexLossy, group: "Math Operations");
+          yield return new MenuItem(typeof(ValueSub<>).MakeGenericType(opType), connectionTransferType: ConnectionTransferType.ByIndexLossy, group: "Math Operations");
         }
 
         if (coder.Property<bool>("SupportsMul").Value)
         {
-          yield return new MenuItem(typeof(ValueMul<>).MakeGenericType(opType), connectionTransferType: ConnectionTransferType.ByIndexLossy);
+          yield return new MenuItem(typeof(ValueMul<>).MakeGenericType(opType), connectionTransferType: ConnectionTransferType.ByIndexLossy, group: "Math Operations");
         }
 
         if (coder.Property<bool>("SupportsDiv").Value)
         {
-          yield return new MenuItem(typeof(ValueDiv<>).MakeGenericType(opType), connectionTransferType: ConnectionTransferType.ByIndexLossy);
+          yield return new MenuItem(typeof(ValueDiv<>).MakeGenericType(opType), connectionTransferType: ConnectionTransferType.ByIndexLossy, group: "Math Operations");
         }
 
         if (coder.Property<bool>("SupportsMod").Value)
         {
-          yield return new MenuItem(typeof(ValueMod<>).MakeGenericType(opType), connectionTransferType: ConnectionTransferType.ByIndexLossy);
+          yield return new MenuItem(typeof(ValueMod<>).MakeGenericType(opType), connectionTransferType: ConnectionTransferType.ByIndexLossy, group: "Math Operations");
         }
 
         if (coder.Property<bool>("SupportsMul").Value)
         {
           yield return new MenuItem(
               node: typeof(ValueSquare<>).MakeGenericType(opType),
-              connectionTransferType: ConnectionTransferType.ByIndexLossy
+              connectionTransferType: ConnectionTransferType.ByIndexLossy,
+              group: "Math Operations"
           );
         }
 
@@ -84,7 +85,8 @@ static partial class ContextualSwapActionsPatch
         {
           yield return new MenuItem(
               node: match,
-              connectionTransferType: ConnectionTransferType.ByIndexLossy
+              connectionTransferType: ConnectionTransferType.ByIndexLossy,
+              group: "Math Operations"
           );
         }
       }

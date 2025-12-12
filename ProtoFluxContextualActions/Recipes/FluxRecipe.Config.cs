@@ -46,7 +46,6 @@ public static class FluxRecipeConfig
   public static void OnRemoveItem(string ItemName)
   {
     int index = FluxRecipes.FindIndex(recipe => recipe.RecipeName.Equals(ItemName, StringComparison.InvariantCultureIgnoreCase));
-    UniLog.Warning($"{index}");
     if (index == -1) return;
     FluxRecipes.RemoveAt(index);
     WriteIntoConfig();
@@ -159,7 +158,6 @@ public static class FluxRecipeConfig
     if (target.NodeDefinitions.Any(def => def.IsTypeNull)) return;
     tool.StartTask(async () =>
     {
-      UniLog.Warning($"Creating a recipe {target.RecipeName}");
       List<Type> spawningTypes = target.NodeDefinitions.Select(def => def.NodeType).ToList();
 
       Dictionary<int, ProtoFluxNode> spawnedNodes = [];
@@ -215,7 +213,6 @@ public static class FluxRecipeConfig
         }
         catch
         {
-          UniLog.Warning($"couldnt use binding for {targetType}");
           spawnedNodes[i] = null;
         }
       }
@@ -224,7 +221,6 @@ public static class FluxRecipeConfig
 
       if (spawnedNodes.Values.Any(node => node == null))
       {
-        UniLog.Warning($"A node was null");
         foreach (ProtoFluxNode node in spawnedNodes.Values)
         {
           if (node != null) node.Slot.Destroy();
@@ -320,7 +316,6 @@ public static class FluxRecipeConfig
       }
       catch
       {
-        UniLog.Warning($"Something broke, oops");
         tool.World.EndUndoBatch();
         foreach (ProtoFluxNode node in spawnedNodes.Values)
         {

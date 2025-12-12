@@ -13,7 +13,7 @@ static partial class ContextualSwapActionsPatch
     {
       foreach (var match in Groups.UserRootHeadRotationGroup)
       {
-        yield return new MenuItem(match);
+        yield return new MenuItem(match, group: "User Root");
       }
     }
   }

@@ -50,9 +50,9 @@ internal static class DynamicVariableOutputPatch
       item2.Button.LocalPressed += (button, data) =>
       {
         var variableRead = GetNodeForType(variableType, [
-            new NodeTypeRecord(typeof(ReadDynamicValueVariable<>), null, null),
-                    new NodeTypeRecord(typeof(ReadDynamicObjectVariable<>), null, null),
-                ]);
+          new NodeTypeRecord(typeof(ReadDynamicValueVariable<>), null, null),
+          new NodeTypeRecord(typeof(ReadDynamicObjectVariable<>), null, null),
+        ]);
         var variableNameInput = typeof(ValueObjectInput<string>);
 
         INodeOutput? inputOutput = null;

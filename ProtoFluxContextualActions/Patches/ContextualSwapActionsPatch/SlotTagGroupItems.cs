@@ -25,8 +25,8 @@ static partial class ContextualSwapActionsPatch
 
   internal static IEnumerable<MenuItem> SlotTagGroupItems(ContextualContext context) =>
   [
-    .. MatchNonGenericTypes(SlotTagGroup, context.NodeType),
-    .. MatchNonGenericTypes(SlotNameGroup, context.NodeType),
-    .. MatchNonGenericTypes(SlotPersistentGroup, context.NodeType)
+    .. MatchNonGenericTypes(SlotTagGroup, context.NodeType, group: "Slot Tagging"),
+    .. MatchNonGenericTypes(SlotNameGroup, context.NodeType, group: "Slot Tagging"),
+    .. MatchNonGenericTypes(SlotPersistentGroup, context.NodeType, group: "Slot Tagging")
   ];
 }

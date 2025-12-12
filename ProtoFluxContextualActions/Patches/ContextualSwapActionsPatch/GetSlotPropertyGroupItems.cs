@@ -26,8 +26,8 @@ static partial class ContextualSwapActionsPatch
     GetSlotPersistentGroup.Zip(GetSlotActiveGroup).ToBiDictionary();
   internal static IEnumerable<MenuItem> GetSlotActiveGroupItems(ContextualContext context) =>
     [
-      .. MatchNonGenericTypes(GetSlotPersistentGroup, context.NodeType),
-      .. MatchNonGenericTypes(GetSlotActiveGroup, context.NodeType),
-      .. (IEnumerable<MenuItem>)(TryGetSwap(GetSlotActivePersistent, context.NodeType, out var match) ? [new(match, connectionTransferType: ConnectionTransferType.ByIndexLossy)] : []),
+      .. MatchNonGenericTypes(GetSlotPersistentGroup, context.NodeType, group: "Slot Tagging"),
+      .. MatchNonGenericTypes(GetSlotActiveGroup, context.NodeType, group: "Slot Tagging"),
+      .. (IEnumerable<MenuItem>)(TryGetSwap(GetSlotActivePersistent, context.NodeType, out var match) ? [new(match, connectionTransferType: ConnectionTransferType.ByIndexLossy, group: "Slot Tagging")] : []),
     ];
 }

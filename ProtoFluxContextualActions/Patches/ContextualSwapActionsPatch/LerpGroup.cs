@@ -30,21 +30,21 @@ static partial class ContextualSwapActionsPatch
       // in practice, https://github.com/Yellow-Dog-Man/Resonite-Issues/issues/3319
       if (coder.Property<bool>("SupportsSmoothLerp").Value)
       {
-        yield return new(typeof(ValueSmoothLerp<>).MakeGenericType(opType), connectionTransferType: ConnectionTransferType.ByIndexLossy);
+        yield return new(typeof(ValueSmoothLerp<>).MakeGenericType(opType), connectionTransferType: ConnectionTransferType.ByIndexLossy, group: "Lerp");
       }
       if (coder.Property<bool>("SupportsConstantLerp").Value)
       {
-        yield return new(typeof(ValueConstantLerp<>).MakeGenericType(opType), connectionTransferType: ConnectionTransferType.ByIndexLossy);
+        yield return new(typeof(ValueConstantLerp<>).MakeGenericType(opType), connectionTransferType: ConnectionTransferType.ByIndexLossy, group: "Lerp");
       }
       if (coder.Property<bool>("SupportsLerp").Value)
       {
-        yield return new(typeof(ValueLerp<>).MakeGenericType(opType), connectionTransferType: ConnectionTransferType.ByIndexLossy);
-        yield return new(typeof(ValueLerpUnclamped<>).MakeGenericType(opType), connectionTransferType: ConnectionTransferType.ByIndexLossy);
-        yield return new(typeof(ValueMultiLerp<>).MakeGenericType(opType), name: "MultiLerp", connectionTransferType: ConnectionTransferType.ByIndexLossy);
+        yield return new(typeof(ValueLerp<>).MakeGenericType(opType), connectionTransferType: ConnectionTransferType.ByIndexLossy, group: "Lerp");
+        yield return new(typeof(ValueLerpUnclamped<>).MakeGenericType(opType), connectionTransferType: ConnectionTransferType.ByIndexLossy, group: "Lerp");
+        yield return new(typeof(ValueMultiLerp<>).MakeGenericType(opType), name: "MultiLerp", connectionTransferType: ConnectionTransferType.ByIndexLossy, group: "Lerp");
       }
       if (coder.Property<bool>("SupportsInverseLerp").Value)
       {
-        yield return new(typeof(ValueInverseLerp<>).MakeGenericType(opType), connectionTransferType: ConnectionTransferType.ByIndexLossy);
+        yield return new(typeof(ValueInverseLerp<>).MakeGenericType(opType), connectionTransferType: ConnectionTransferType.ByIndexLossy, group: "Lerp");
       }
     }
   }

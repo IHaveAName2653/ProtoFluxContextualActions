@@ -36,18 +36,20 @@ public struct BindData
 
   public void Update(bool state)
   {
-    if (TimeSincePressed < ProtoFluxContextualActions.GetDoubleTapSpeed() && state) isDoublePress = true;
-
+    isDoublePress = false;
     pressedThisUpdate = false;
     releasedThisUpdate = false;
+
+    if (TimeSincePressed < Config.DoubleTapSpeed.GetValue() && state && TimeSincePressed <= 500000f) isDoublePress = true;
+
 
     bool changed = currentlyPressed != state;
     if (changed)
     {
       pressedThisUpdate = state;
       releasedThisUpdate = !state;
-      currentlyPressed = state;
     }
+    currentlyPressed = state;
 
     if (pressedThisUpdate) lastPressedTime = DateTime.Now;
   }

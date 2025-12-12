@@ -27,7 +27,8 @@ static partial class ContextualSwapActionsPatch
       static MenuItem MultiMenuItem(Type nodeType) => new(
         node: nodeType,
         name: nodeType.GetNiceTypeName(),
-        connectionTransferType: ConnectionTransferType.ByIndexLossy
+        connectionTransferType: ConnectionTransferType.ByIndexLossy,
+        group: "Multi Types"
       );
 
       if (coder.Property<bool>("SupportsAddSub").Value)

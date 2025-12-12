@@ -23,8 +23,8 @@ static partial class ContextualSwapActionsPatch
       if (genericType != valInputType && genericType != objInputType) yield break;
       Type contextType = context.NodeType.GenericTypeArguments[0];
 
-      MenuItem makeValueType<T>() => new(valInputType.MakeGenericType(contextType, typeof(T)), name: typeof(T).GetNiceTypeName());
-      MenuItem makeObjectType<T>() => new(objInputType.MakeGenericType(contextType, typeof(T)), name: typeof(T).GetNiceTypeName());
+      MenuItem makeValueType<T>() => new(typeof(FrooxEngine.ProtoFlux.Runtimes.Execution.Nodes.ValueInput<>).MakeGenericType(typeof(T)), name: typeof(T).GetNiceTypeName(), group: "Value Input");
+      MenuItem makeObjectType<T>() => new(typeof(FrooxEngine.ProtoFlux.Runtimes.Execution.Nodes.ValueObjectInput<>).MakeGenericType(typeof(T)), name: typeof(T).GetNiceTypeName(), group: "Value Input");
 
       if (genericType == valInputType)
       {

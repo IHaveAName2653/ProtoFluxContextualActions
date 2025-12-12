@@ -37,11 +37,11 @@ static partial class ContextualSwapActionsPatch
       var dataModelStore = ProtoFluxHelper.GetDataModelStoreNode(storageType);
       if (dataModelStore.IsGenericType)
       {
-        yield return new MenuItem(NodeUtils.ProtoFluxBindingMapping[dataModelStore.GetGenericTypeDefinition()].MakeGenericType(dataModelStore.GenericTypeArguments));
+        yield return new MenuItem(NodeUtils.ProtoFluxBindingMapping[dataModelStore.GetGenericTypeDefinition()].MakeGenericType(dataModelStore.GenericTypeArguments), group: "Variables");
       }
       else
       {
-        yield return new MenuItem(NodeUtils.ProtoFluxBindingMapping[dataModelStore]);
+        yield return new MenuItem(NodeUtils.ProtoFluxBindingMapping[dataModelStore], group: "Variables");
       }
     }
   }

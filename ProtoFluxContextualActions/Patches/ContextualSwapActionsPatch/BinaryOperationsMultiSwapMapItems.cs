@@ -20,7 +20,8 @@ static partial class ContextualSwapActionsPatch
     {
       yield return new MenuItem(
         node: matched,
-        connectionTransferType: ConnectionTransferType.ByIndexLossy
+        connectionTransferType: ConnectionTransferType.ByIndexLossy,
+        group: "Bool Operations"
       );
     }
     else if (binaryOperationsMultiSwapMap.TryGetSecond(context.NodeType, out matched))
@@ -28,7 +29,8 @@ static partial class ContextualSwapActionsPatch
       yield return new MenuItem(
         node: matched,
         name: FormatMultiName(matched),
-        connectionTransferType: ConnectionTransferType.ByIndexLossy
+        connectionTransferType: ConnectionTransferType.ByIndexLossy,
+        group: "Multi Bool Operations"
       );
     }
   }

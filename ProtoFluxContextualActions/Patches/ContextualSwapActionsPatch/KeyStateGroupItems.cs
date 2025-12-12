@@ -19,7 +19,7 @@ static partial class ContextualSwapActionsPatch
     {
       foreach (var match in KeyStateGroup)
       {
-        yield return new MenuItem(match);
+        yield return new MenuItem(match, group: "Input");
       }
     }
   }

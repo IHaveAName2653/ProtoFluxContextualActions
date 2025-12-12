@@ -18,7 +18,7 @@ static partial class ContextualSwapActionsPatch
     {
       foreach (var match in UserRootSlotGroup)
       {
-        yield return new MenuItem(match);
+        yield return new MenuItem(match, group: "User Slots");
       }
     }
   }

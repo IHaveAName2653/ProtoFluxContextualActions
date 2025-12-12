@@ -12,7 +12,7 @@ static partial class ContextualSwapActionsPatch
     {
       foreach (var match in Groups.ScreenPointGroup)
       {
-        yield return new MenuItem(match);
+        yield return new MenuItem(match, group: "Input");
       }
     }
   }

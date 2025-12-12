@@ -22,7 +22,7 @@ static partial class ContextualSwapActionsPatch
       var matchingNodes = binaryOperationsGroup.Where(a => genericTypes.SequenceEqual(a.Value)).Select(a => a.Key);
       foreach (var match in matchingNodes)
       {
-        yield return new MenuItem(match);
+        yield return new MenuItem(match, group: "Math Operations");
       }
     }
   }

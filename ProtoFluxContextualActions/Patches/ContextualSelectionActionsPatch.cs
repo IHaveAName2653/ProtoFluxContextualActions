@@ -144,11 +144,13 @@ internal static class ContextualSelectionActionsPatch
     Pager<MenuItem> baseItemManager = new();
     Pager<FluxRecipeConfig.PartialMenuItem> customItemManager = new();
 
+    var rootData = new PageRootData(baseItemManager, customItemManager);
+
     baseItemManager.InitPagedItems(items, targetColor, elementProxy, (Tool, Proxy, Item) =>
     {
       BaseMenuSetup(Tool, Proxy, Item, currentAction);
-    });
-    customItemManager.InitPagedItems(customItems, targetColor, elementProxy, ProcessCustomProxyItem);
+    }, () => CreateRootItems(tool, rootData));
+    customItemManager.InitPagedItems(customItems, targetColor, elementProxy, ProcessCustomProxyItem, () => CreateRootItems(tool, rootData));
 
     var rootData = new PageRootData(baseItemManager, customItemManager);
 
@@ -303,12 +305,12 @@ internal static class ContextualSelectionActionsPatch
 
       var baseItemManager = rootData.mainItems;
 
-      baseItemManager.CreateGroups(tool, menu, colorX.White, rootData);
+      baseItemManager.CreateGroups(tool, menu, colorX.White);
 
 
       var customItemManager = rootData.customItems;
 
-      customItemManager.CreateGroups(tool, menu, colorX.Orange, rootData, "Custom");
+      customItemManager.CreateGroups(tool, menu, colorX.Orange, "Custom");
     });
   }
 
@@ -543,6 +545,17 @@ internal static class ContextualSelectionActionsPatch
           if (coder.Property<bool>("SupportsSmoothLerp").Value)
           {
             yield return new MenuItem(typeof(ValueSmoothLerp<>).MakeGenericType(outputType), group: "Lerp");
+          }
+
+
+          if (coder.Property<bool>("SupportsMinMax").Value)
+          {
+            yield return new MenuItem(typeof(ValueClamp<>).MakeGenericType(outputType), group: "Math Operations");
+          }
+
+          if (TryGetPsuedoGenericForType(world, "Clamp01_", outputType) is Type clampType)
+          {
+            yield return new MenuItem(clampType, group: "Math Operations");
           }
         }
 

@@ -21,7 +21,8 @@ static partial class ContextualSwapActionsPatch
         yield return new MenuItem(
           node: match,
           name: FormatMultiName(match),
-          connectionTransferType: ConnectionTransferType.ByIndexLossy
+          connectionTransferType: ConnectionTransferType.ByIndexLossy,
+          group: "Multi Bool Operations"
         );
       }
     }

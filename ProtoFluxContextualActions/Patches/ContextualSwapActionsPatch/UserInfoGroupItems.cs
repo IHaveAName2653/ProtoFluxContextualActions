@@ -22,7 +22,7 @@ static partial class ContextualSwapActionsPatch
     {
       foreach (var match in UserInfoGroup)
       {
-        yield return new MenuItem(match);
+        yield return new MenuItem(match, group: "User Info");
       }
     }
   }

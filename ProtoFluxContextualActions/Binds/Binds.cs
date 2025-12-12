@@ -94,9 +94,14 @@ public class Binds
     // Desktop specific binds
     if (ShouldUseDesktopBinds(data))
     {
-      if (data.GrabbedReference != null && data.Secondary.Opposite.pressedThisUpdate) return Target.Reference;
-      if (data.Secondary.Opposite.pressedThisUpdate && data.Menu.Opposite.currentlyPressed) return Target.Swap;
-      if (data.Secondary.Opposite.pressedThisUpdate && !data.Menu.Opposite.currentlyPressed) return Target.Select;
+      bool oppositeSecondary = data.Secondary.Opposite.pressedThisUpdate;
+      bool oppositeMenu = data.Menu.Opposite.currentlyPressed;
+
+      if (data.GrabbedReference != null && oppositeSecondary) return Target.Reference;
+
+      if (oppositeSecondary && oppositeMenu) return Target.Swap;
+
+      if (oppositeSecondary && !oppositeMenu) return Target.Select;
     }
     else
     {

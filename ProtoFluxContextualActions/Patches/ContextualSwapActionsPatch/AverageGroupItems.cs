@@ -22,7 +22,8 @@ static partial class ContextualSwapActionsPatch
         yield return new MenuItem(
           node: match,
           name: match.GetNiceTypeName().Contains("Multi_") ? FormatMultiName(match) : null,
-          connectionTransferType: ConnectionTransferType.ByIndexLossy
+          connectionTransferType: ConnectionTransferType.ByIndexLossy,
+          group: $"{(match.GetNiceTypeName().Contains("Multi_") ? "Multi " : "")}Math Operations"
         );
       }
       if (context.NodeType.GetNiceTypeName().Contains("Multi_"))
@@ -32,7 +33,8 @@ static partial class ContextualSwapActionsPatch
           yield return new MenuItem(
             node: match.MakeGenericType([.. genericTypes]),
             name: FormatMultiName(match),
-            connectionTransferType: ConnectionTransferType.ByIndexLossy
+            connectionTransferType: ConnectionTransferType.ByIndexLossy,
+            group: "Multi Math Operations"
           );
         }
       }
@@ -42,7 +44,8 @@ static partial class ContextualSwapActionsPatch
         {
           yield return new MenuItem(
             node: match.MakeGenericType([.. genericTypes]),
-            connectionTransferType: ConnectionTransferType.ByIndexLossy
+            connectionTransferType: ConnectionTransferType.ByIndexLossy,
+            group: "Math Operations"
           );
         }
       }

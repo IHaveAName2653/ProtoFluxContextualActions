@@ -20,11 +20,11 @@ static partial class ContextualSwapActionsPatch
 
       if (genericType == typeof(ValueEquals<>) && aproximatelyNodes.TryGetFirst(context.NodeType.GenericTypeArguments[0], out var first))
       {
-        yield return new MenuItem(first);
+        yield return new MenuItem(first, group: "Comparisons");
       }
       else if (genericType == typeof(ValueNotEquals<>) && aproximatelyNodes.TryGetFirst(context.NodeType.GenericTypeArguments[0], out first))
       {
-        yield return new MenuItem(first);
+        yield return new MenuItem(first, group: "Comparisons");
       }
     }
   }

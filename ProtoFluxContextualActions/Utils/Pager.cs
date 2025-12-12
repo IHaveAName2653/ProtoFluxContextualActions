@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using static ProtoFluxContextualActions.Patches.ContextualSelectionActionsPatch;
 
+using Config = ProtoFluxContextualActions.ProtoFluxContextualActions;
 
 namespace ProtoFluxContextualActions.Utils;
 
@@ -27,7 +28,7 @@ public interface IPageItems : IGroup, IName, IMenuNode { }
 
 internal class Pager<T> where T : IPageItems
 {
-  internal static int MAX_PER_PAGE => ProtoFluxContextualActions.GetMaxPerPage();
+  internal static int MAX_PER_PAGE => Config.MaxPerPage.GetValue();
 
   internal static List<List<T2>> Split<T2>(IList<T2> source)
   {
@@ -42,15 +43,18 @@ internal class Pager<T> where T : IPageItems
   internal colorX? itemColor;
   internal ProtoFluxElementProxy? proxy;
   internal Action<ProtoFluxTool, ProtoFluxElementProxy, T>? menuButtonSetup;
+  internal Action? onBackButtonPressed;
   internal void InitPagedItems(
     List<T> Items,
     colorX? color,
     ProtoFluxElementProxy elementProxy,
-    Action<ProtoFluxTool, ProtoFluxElementProxy, T> onMenuButtonPressed)
+    Action<ProtoFluxTool, ProtoFluxElementProxy, T> onMenuButtonPressed,
+    Action onBackPressed)
   {
     itemColor = color;
     proxy = elementProxy;
     menuButtonSetup = onMenuButtonPressed;
+    onBackButtonPressed = onBackPressed;
 
     //if (proxy == null) return;
     if (menuButtonSetup == null) return;
@@ -79,7 +83,7 @@ internal class Pager<T> where T : IPageItems
     }
   }
 
-  internal void CreateGroups(ProtoFluxTool tool, ContextMenu menu, colorX color, PageRootData rootData, string? insideSubFolder = null)
+  internal void CreateGroups(ProtoFluxTool tool, ContextMenu menu, colorX color, string? insideSubFolder = null)
   {
     if (sortedItems.Count == 0) return;
     if (insideSubFolder != null)
@@ -91,7 +95,7 @@ internal class Pager<T> where T : IPageItems
           var newMenu = await ContextHelper.CreateContext(tool);
           if (sortedItems.Count <= 1)
           {
-            RebuildPagedMenu(tool, itemColor, sortedItems[sortedItems.First().Key], 0, rootData);
+            RebuildPagedMenu(tool, itemColor, sortedItems[sortedItems.First().Key], 0);
           }
           else
           {
@@ -102,8 +106,7 @@ internal class Pager<T> where T : IPageItems
                 tool,
                 newMenu,
                 group.Key,
-                color,
-                rootData
+                color
               );
             }
           }
@@ -116,7 +119,7 @@ internal class Pager<T> where T : IPageItems
       if (group.Value.Count == 0) continue;
       if (sortedItems.Count <= 1)
       {
-        RebuildPagedMenu(tool, itemColor, sortedItems[sortedItems.First().Key], 0, rootData);
+        RebuildPagedMenu(tool, itemColor, sortedItems[sortedItems.First().Key], 0);
       }
       else
       {
@@ -124,8 +127,7 @@ internal class Pager<T> where T : IPageItems
           tool,
           menu,
           group.Key,
-          color,
-          rootData
+          color
         );
       }
     }
@@ -135,12 +137,11 @@ internal class Pager<T> where T : IPageItems
   ProtoFluxTool tool,
   ContextMenu menu,
   string folderName,
-  colorX color,
-  PageRootData rootData)
+  colorX color)
   {
     menu.AddMenuFolder(folderName, color, () =>
     {
-      RebuildPagedMenu(tool, itemColor, sortedItems[folderName], 0, rootData);
+      RebuildPagedMenu(tool, itemColor, sortedItems[folderName], 0);
     });
   }
 
@@ -148,20 +149,19 @@ internal class Pager<T> where T : IPageItems
         ProtoFluxTool tool,
         colorX? itemColor,
         List<List<T>> PagedItems,
-        int page,
-        PageRootData rootData)
+        int page)
   {
     tool.StartTask(async () =>
     {
       var newMenu = await ContextHelper.CreateContext(tool);
-      if (page == 0)
+      if (page == 0 && onBackButtonPressed != null)
       {
         var label = (LocaleString)"Back";
         var menuItem = newMenu.AddItem(in label, (Uri?)null, colorX.Red);
         menuItem.Button.LocalPressed += (button, data) =>
         {
           tool.LocalUser.CloseContextMenu(tool);
-          CreateRootItems(tool, rootData);
+          onBackButtonPressed();
         };
       }
       if (page > 0)
@@ -171,13 +171,13 @@ internal class Pager<T> where T : IPageItems
         menuItem.Button.LocalPressed += (button, data) =>
         {
           tool.LocalUser.CloseContextMenu(tool);
-          RebuildPagedMenu(tool, itemColor, PagedItems, page - 1, rootData);
+          RebuildPagedMenu(tool, itemColor, PagedItems, page - 1);
         };
       }
       foreach (var item in PagedItems[page])
       {
         //if (proxy == null) return;
-        colorX? targetColor = ProtoFluxContextualActions.GetUseTypeColor() ? itemColor : null;
+        colorX? targetColor = Config.UseTypeColor.GetValue() ? itemColor : null;
         targetColor ??= item.GetNodeType()?.GetTypeColor();
         if (targetColor == null) targetColor = colorX.White;
         AddMenuItem(tool, proxy, newMenu, targetColor.Value, item);
@@ -189,7 +189,7 @@ internal class Pager<T> where T : IPageItems
         menuItem.Button.LocalPressed += (button, data) =>
         {
           tool.LocalUser.CloseContextMenu(tool);
-          RebuildPagedMenu(tool, itemColor, PagedItems, page + 1, rootData);
+          RebuildPagedMenu(tool, itemColor, PagedItems, page + 1);
         };
       }
     });

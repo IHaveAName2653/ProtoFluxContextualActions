@@ -50,17 +50,17 @@ static partial class ContextualSwapActionsPatch
     {
       if (SetterToGetterConversion.TryGetValue(nodeType, out Type? getNode))
       {
-        yield return new(getNode);
+        yield return new(getNode, group: "Transform Getter");
       }
-      yield return new(match);
+      yield return new(match, group: "Transform");
     }
     if (TryGetSwap(GetGlobalLocalEquivilents, nodeType, out match))
     {
       if (GetterToSetterConversion.TryGetValue(nodeType, out Type? setNode))
       {
-        yield return new(setNode);
+        yield return new(setNode, group: "Transform Setter");
       }
-      yield return new(match, connectionTransferType: ConnectionTransferType.ByIndexLossy);
+      yield return new(match, connectionTransferType: ConnectionTransferType.ByIndexLossy, group: "Transform");
     }
   }
 }

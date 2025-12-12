@@ -19,7 +19,7 @@ static partial class ContextualSwapActionsPatch
     {
       foreach (var match in GrabbableValuePropertyGroup)
       {
-        yield return new MenuItem(match);
+        yield return new MenuItem(match, group: "Grabbable Properties");
       }
     }
   }

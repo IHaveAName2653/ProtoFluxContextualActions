@@ -28,7 +28,7 @@ static partial class ContextualSwapActionsPatch
         if (IsValidGenericType(type))
         {
           // TODO: have proper transfer types, this having it be lossy is fine for now but not ideal.
-          yield return new MenuItem(match.MakeGenericType(nodeType.GenericTypeArguments));
+          yield return new MenuItem(match.MakeGenericType(nodeType.GenericTypeArguments), group: "Variables");
         }
       }
 
@@ -44,7 +44,7 @@ static partial class ContextualSwapActionsPatch
         var type = match.MakeGenericType(typeof(bool));
         if (IsValidGenericType(type))
         {
-          yield return new MenuItem(type);
+          yield return new MenuItem(type, group: "Variables");
         }
       }
     }
