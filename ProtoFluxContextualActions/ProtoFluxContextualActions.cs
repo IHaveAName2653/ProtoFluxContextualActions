@@ -9,7 +9,9 @@ using System.Reflection;
 namespace ProtoFluxContextualActions;
 
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using FrooxEngine;
+using FrooxEngine.UIX;
 using global::ProtoFluxContextualActions.Utils;
 using Renderite.Shared;
 
@@ -32,7 +34,6 @@ public class ProtoFluxContextualActions : ResoniteMod
 
   internal static ModConfiguration? Config;
 
-  private static readonly Dictionary<string, ModConfigurationKey<bool>> patchCategoryKeys = [];
   #region All Config Values
 
   #region Page Config
@@ -141,6 +142,7 @@ public class ProtoFluxContextualActions : ResoniteMod
 
   public static readonly List<ModConfigKey> currentConfigKeys = [];
 
+  private static readonly List<string> patchCategoryKeys = [];
 
   static ProtoFluxContextualActions()
   {
@@ -164,27 +166,19 @@ public class ProtoFluxContextualActions : ResoniteMod
       var tweakCategory = type.GetCustomAttribute<TweakCategoryAttribute>();
       if (patchCategory != null && tweakCategory != null)
       {
-        ModConfigurationKey<bool> key = new(
-          name: patchCategory.info.category,
-          description: tweakCategory.Description,
-          computeDefault: () => tweakCategory.DefaultValue
-        );
-
-        DebugFunc(() => $"Registering patch category {key.Name}...");
-        patchCategoryKeys[key.Name] = key;
+        string key = patchCategory.info.category;
+        DebugFunc(() => $"Registering patch category {key}...");
+        patchCategoryKeys.Add(key);
       }
     }
   }
 
   public override void DefineConfiguration(ModConfigurationDefinitionBuilder builder)
   {
-    foreach (var key in patchCategoryKeys.Values)
     builder.Version("2.0.0");
     builder.AutoSave(true);
     foreach (var key in currentConfigKeys)
     {
-      DebugFunc(() => $"Adding configuration key for {key.Name}...");
-      builder.Key(key);
       builder.Key(key.ConfigKey);
     }
   }
@@ -236,7 +230,7 @@ public class ProtoFluxContextualActions : ResoniteMod
 
   private static void UnpatchCategories()
   {
-    foreach (var category in patchCategoryKeys.Keys)
+    foreach (var category in patchCategoryKeys)
     {
       harmony.UnpatchCategory(ModAssembly, category);
     }
@@ -244,30 +238,9 @@ public class ProtoFluxContextualActions : ResoniteMod
 
   private static void PatchCategories()
   {
-    foreach (var (category, key) in patchCategoryKeys)
+    foreach (var category in patchCategoryKeys)
     {
-      if (Config?.GetValue(key) ?? true) // enable if fail?
-      {
-        harmony.PatchCategory(ModAssembly, category);
-      }
-    }
-  }
-
-  private static void OnConfigChanged(ConfigurationChangedEvent change)
-  {
-    var category = change.Key.Name;
-    if (change.Key is ModConfigurationKey<bool> key && patchCategoryKeys.ContainsKey(category))
-    {
-      if (change.Config.GetValue(key))
-      {
-        DebugFunc(() => $"Patching {category}...");
-        harmony.PatchCategory(category);
-      }
-      else
-      {
-        DebugFunc(() => $"Unpatching {category}...");
-        harmony.UnpatchCategory(category);
-      }
+      harmony.PatchCategory(ModAssembly, category);
     }
   }
 

@@ -279,7 +279,7 @@ internal static class ContextualSelectionActionsPatch
   {
     item.onMenuPress(tool, proxy, item.recipe);
     tool.LocalUser.CloseContextMenu(tool);
-    CleanupDraggedWire(tool);
+    ToolInfo.CleanupDraggedWire(tool);
   }
 
   #endregion
@@ -325,7 +325,7 @@ internal static class ContextualSelectionActionsPatch
       n.EnsureElementsInDynamicLists();
       setup(tool, proxy, item, n);
       tool.LocalUser.CloseContextMenu(tool);
-      CleanupDraggedWire(tool);
+      ToolInfo.CleanupDraggedWire(tool);
     });
   }
 
@@ -623,20 +623,20 @@ internal static class ContextualSelectionActionsPatch
     }
     var outputType = outputProxy.OutputType.Value;
 
-    var equalsNode = GetNodeForType(outputType, [
+    var equalsNode = ToolInfo.GetNodeForType(outputType, [
       new NodeTypeRecord(typeof(ValueEquals<>), null, null),
       new NodeTypeRecord(typeof(ObjectEquals<>), null, null),
     ]);
     yield return new MenuItem(equalsNode, group: "Comparisons");
 
-    var firstMatchNode = GetNodeForType(outputType, [
+    var firstMatchNode = ToolInfo.GetNodeForType(outputType, [
       new NodeTypeRecord(typeof(IndexOfFirstValueMatch<>), null, null),
       new NodeTypeRecord(typeof(IndexOfFirstObjectMatch<>), null, null),
     ]);
     yield return new MenuItem(firstMatchNode, group: "Selection");
 
 
-    var conditionalNode = GetNodeForType(outputType, [
+    var conditionalNode = ToolInfo.GetNodeForType(outputType, [
         new NodeTypeRecord(typeof(ValueConditional<>), null, null),
             new NodeTypeRecord(typeof(ObjectConditional<>), null, null),
         ]);
@@ -649,13 +649,13 @@ internal static class ContextualSelectionActionsPatch
       yield return new MenuItem(typeof(FireOnFalse), group: "Impulse");
       //yield return new MenuItem(typeof(FireOnValueChange<bool>));
     }
-    var changeVariableNode = GetNodeForType(outputType, [
+    var changeVariableNode = ToolInfo.GetNodeForType(outputType, [
         new NodeTypeRecord(typeof(FireOnValueChange<>), null, null),
             new NodeTypeRecord(typeof(FireOnObjectValueChange<>), null, null),
             new NodeTypeRecord(typeof(FireOnRefChange<>), null, null),
         ]);
     yield return new MenuItem(changeVariableNode, group: "Impulse");
-    var localChangeVariableNode = GetNodeForType(outputType, [
+    var localChangeVariableNode = ToolInfo.GetNodeForType(outputType, [
         new NodeTypeRecord(typeof(FireOnLocalValueChange<>), null, null),
             new NodeTypeRecord(typeof(FireOnLocalObjectChange<>), null, null),
         ]);
@@ -1143,7 +1143,7 @@ internal static class ContextualSelectionActionsPatch
 
     if (nodeVariable != null)
     {
-      var variableInput = GetNodeForType(nodeVariable, [
+      var variableInput = ToolInfo.GetNodeForType(nodeVariable, [
         new NodeTypeRecord(typeof(ValueWrite<>), null, null),
         new NodeTypeRecord(typeof(ObjectWrite<>), null, null),
       ]);
@@ -1161,7 +1161,7 @@ internal static class ContextualSelectionActionsPatch
         },
         group: "Variables"
       );
-      var variableLatchInput = GetNodeForType(nodeVariable, [
+      var variableLatchInput = ToolInfo.GetNodeForType(nodeVariable, [
         new NodeTypeRecord(typeof(ValueWriteLatch<>), null, null),
         new NodeTypeRecord(typeof(ObjectWriteLatch<>), null, null),
       ]);
@@ -1420,15 +1420,15 @@ internal static class ContextualSelectionActionsPatch
 
     if (inputType == typeof(bool)) yield return new MenuItem(typeof(DataModelBooleanToggle), group: "Variables");
 
-    var variableInput = GetNodeForType(inputType, [
+    var variableInput = ToolInfo.GetNodeForType(inputType, [
       new NodeTypeRecord(typeof(LocalValue<>), null, null),
       new NodeTypeRecord(typeof(LocalObject<>), null, null),
     ]);
-    var variableInput2 = GetNodeForType(inputType, [
+    var variableInput2 = ToolInfo.GetNodeForType(inputType, [
       new NodeTypeRecord(typeof(StoredValue<>), null, null),
       new NodeTypeRecord(typeof(StoredObject<>), null, null),
     ]);
-    var variableInput3 = GetNodeForType(inputType, [
+    var variableInput3 = ToolInfo.GetNodeForType(inputType, [
       new NodeTypeRecord(typeof(DataModelValueFieldStore<>), null, null),
       new NodeTypeRecord(typeof(DataModelObjectRefStore<>), null, null),
     ]);
@@ -1574,25 +1574,4 @@ internal static class ContextualSelectionActionsPatch
       || nodeType == typeof(AsyncFor)
       || nodeType == typeof(While)
       || nodeType == typeof(AsyncWhile);
-
-  [HarmonyReversePatch]
-  [HarmonyPatch(typeof(ProtoFluxTool), "CleanupDraggedWire")]
-  [MethodImpl(MethodImplOptions.NoInlining)]
-  internal static void CleanupDraggedWire(ProtoFluxTool instance) => throw new NotImplementedException();
-
-  [HarmonyReversePatch]
-  [HarmonyPatch(typeof(ProtoFluxTool), "OnSecondaryPress")]
-  [MethodImpl(MethodImplOptions.NoInlining)]
-  internal static void OnSecondaryPress(ProtoFluxTool instance) => throw new NotImplementedException();
-
-
-  [HarmonyReversePatch]
-  [HarmonyPatch(typeof(ProtoFluxHelper), "GetNodeForType")]
-  [MethodImpl(MethodImplOptions.NoInlining)]
-  internal static Type GetNodeForType(Type type, List<NodeTypeRecord> list) => throw new NotImplementedException();
-
-  [HarmonyReversePatch]
-  [HarmonyPatch(typeof(Tool), "GetHit")]
-  [MethodImpl(MethodImplOptions.NoInlining)]
-  internal static RaycastHit? GetHit(Tool instance) => throw new NotImplementedException();
 }

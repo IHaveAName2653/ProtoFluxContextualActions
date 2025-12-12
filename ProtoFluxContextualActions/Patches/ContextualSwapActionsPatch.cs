@@ -63,7 +63,7 @@ internal static partial class ContextualSwapActionsPatch
 
   internal static bool GetSwapActions(ProtoFluxTool tool, ProtoFluxElementProxy elementProxy)
   {
-    var hit = GetHit(tool);
+    var hit = ToolInfo.GetHit(tool);
     if (hit is { Collider.Slot: var hitSlot })
     {
       var hitNode = hitSlot.GetComponentInParents<ProtoFluxNode>();
@@ -143,7 +143,7 @@ internal static partial class ContextualSwapActionsPatch
         var intoType = intoNode.GetType();
         var swappedNode = (ProtoFluxNode)nodeMap[fromNode].Slot.AttachComponent(ProtoFluxHelper.GetBindingForNode(intoType));
         nodeMap[intoNode] = swappedNode;
-        AssociateInstance(swappedNode, nodeMap[fromNode].Group, intoNode);
+        ToolInfo.AssociateInstance(swappedNode, nodeMap[fromNode].Group, intoNode);
       }
 
       foreach (var (_, intoNode) in swappedNodes)
@@ -306,40 +306,5 @@ internal static partial class ContextualSwapActionsPatch
   internal static bool TryGetSwap(BiDictionary<Type, Type> swaps, Type nodeType, out Type match) =>
     swaps.TryGetSecond(nodeType, out match) || swaps.TryGetFirst(nodeType, out match);
 
-  [HarmonyReversePatch]
-  [HarmonyPatch(typeof(ProtoFluxTool), "CleanupDraggedWire")]
-  [MethodImpl(MethodImplOptions.NoInlining)]
-  internal static void CleanupDraggedWire(ProtoFluxTool instance) => throw new NotImplementedException();
-
-  [HarmonyReversePatch]
-  [HarmonyPatch(typeof(ProtoFluxTool), "OnSecondaryPress")]
-  [MethodImpl(MethodImplOptions.NoInlining)]
-  internal static void OnSecondaryPress(ProtoFluxTool instance) => throw new NotImplementedException();
-
-
-  [HarmonyReversePatch]
-  [HarmonyPatch(typeof(ProtoFluxHelper), "GetNodeForType")]
-  [MethodImpl(MethodImplOptions.NoInlining)]
-  internal static Type GetNodeForType(Type type, List<NodeTypeRecord> list) => throw new NotImplementedException();
-
-  [HarmonyReversePatch]
-  [HarmonyPatch(typeof(Tool), "GetHit")]
-  [MethodImpl(MethodImplOptions.NoInlining)]
-  internal static RaycastHit? GetHit(Tool instance) => throw new NotImplementedException();
-
-  [HarmonyReversePatch]
-  [HarmonyPatch(typeof(ProtoFluxNodeGroup), "MapCastsAndOverloads")]
-  [MethodImpl(MethodImplOptions.NoInlining)]
-  internal static void MapCastsAndOverloads(ProtoFluxNodeGroup instance, ProtoFluxNode sourceNode, ProtoFluxNode targetNode, ConnectionResult result, bool undoable) => throw new NotImplementedException();
-
-  [HarmonyReversePatch]
-  [HarmonyPatch(typeof(ProtoFluxNode), "AssociateInstance")]
-  [MethodImpl(MethodImplOptions.NoInlining)]
-  internal static void AssociateInstance(ProtoFluxNode instance, ProtoFluxNodeGroup group, INode node) => throw new NotImplementedException();
-
-  [HarmonyReversePatch]
-  [HarmonyPatch(typeof(ProtoFluxNode), "ClearGroupAndInstance")]
-  [MethodImpl(MethodImplOptions.NoInlining)]
-  internal static void ClearGroupAndInstance(this ProtoFluxNode instance) => throw new NotImplementedException();
   #endregion
 }
