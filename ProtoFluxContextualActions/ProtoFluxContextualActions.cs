@@ -33,10 +33,128 @@ public class ProtoFluxContextualActions : ResoniteMod
   internal static ModConfiguration? Config;
 
   private static readonly Dictionary<string, ModConfigurationKey<bool>> patchCategoryKeys = [];
+  #region All Config Values
+
+  #region Page Config
+
+  public static readonly ModConfigKey<int> MaxPerPage = new("Max Per Page", "How many items can show up on one page", 8);
+
+  public static readonly ModConfigKey<bool> UseTypeColor = new("Use Type Color", "If the menu items should use the type color instead of the node type color", true);
+  #endregion
+
+  #region Selection Config
+
+  public static readonly ModConfigKey<bool> UseNullProxies = new("Use Null Proxies", "If the selection action can be triggered with no proxy held", false);
+
+  #endregion
+
+  #region Bind Config
+
+  #region Trigger Settings
+
+  public static readonly ModConfigKey<float>
+    DoubleTapSpeed = new("Double Tap Speed", "How fast a doubletap is", 0.5f),
+    HoldTime = new("Hold Time", "How long to trigger a 'hold'", 0.5f);
+
+  #endregion
+
+  #region Custom Bind Settings
+
+  public static readonly ModConfigKey<bool>
+    AlternateDefaults = new("Alternate Defaults", "If the activation binds are the alternate set.", false),
+
+    OnlyUseCustomBinds = new("Only Use Custom Binds", "If only custom binds will be used. if true, actions will only activate if a custom bind is set.", false),
+
+    DesktopUsesVRBinds = new("Desktop Uses VR Binds", "If desktop should use the same binds as VR", false);
+
+  #endregion
+
+  #region Desktop Bindings
+
+  public static readonly ModConfigKey<Key>
+    SecondaryKey = new("Secondary Key", "What key to use for 'opposite' secondary", Key.BackQuote),
+    MenuKey = new("Menu Key", "What key to use for 'opposite' menu", Key.LeftShift),
+    GrabKey = new("Grab Key", "What key to use for 'opposite' grab", Key.LeftAlt),
+    PrimaryKey = new("Primary Key", "What key to use for 'opposite' primary", Key.Tab);
+  #endregion
+
+  #endregion
+
+  #region Dyn Hook Config
+
+  public static readonly ModConfigKey<bool>
+    EnableDynHooking = new("Enable Dyn Hooking", "If dynamic impulse hooks should be enabled", true),
+    ArgsUseIndexFirst = new("Arg Index First", "If Dyn Hook arguments use Index before Names", false);
+
+  #endregion
+
+  #region Actions Config
+
+  public static readonly ModConfigKey<bool>
+    EnableSelectionActions = new("Enable Selection Actions", "If selection actions should be enabled", true),
+    EnableSwapActions = new("Enable Swap Actions", "If swap actions should be enabled", true),
+    EnableReferenceActions = new("Enable Reference Actions", "If reference actions should be enabled", true),
+
+    EnableDynVarMenu = new("Enable DynVar Menu", "If DynVars show up in the ProtoFlux context menu while holding a component", true),
+    EnableSpatialMenu = new("Enable Spatial Variable Menu", "If Spatial Vars show up in the ProtoFlux context menu while holding a component", true);
+
+  #endregion
+
+  public static readonly Dictionary<string, Dictionary<string, List<ModConfigKey>>> SortedConfigKeys = new()
+  {
+    {
+      "Page Config", new()
+      {
+        { "Base", [ MaxPerPage, UseTypeColor ] }
+      }
+    },
+    {
+      "Selection Config", new()
+      {
+        { "Base", [ UseNullProxies ] }
+      }
+    },
+    {
+      "Bind Config", new()
+      {
+        { "Trigger Settings", [ DoubleTapSpeed, HoldTime ] },
+        { "Bind Settings",    [ OnlyUseCustomBinds, AlternateDefaults, DesktopUsesVRBinds ] },
+        { "Desktop Binds",    [ SecondaryKey, MenuKey, GrabKey, PrimaryKey ] }
+      }
+    },
+    {
+      "Dyn Hook Config", new()
+      {
+        { "Base", [ EnableDynHooking, ArgsUseIndexFirst ] }
+      }
+    },
+    {
+      "Action Toggles", new()
+      {
+        { "Actions", [ EnableSelectionActions, EnableSwapActions, EnableReferenceActions ] },
+        { "Menu", [ EnableDynVarMenu, EnableSpatialMenu ] }
+      }
+    }
+  };
+
+  #endregion
+
+  public static readonly List<ModConfigKey> currentConfigKeys = [];
+
 
   static ProtoFluxContextualActions()
   {
-    DebugFunc(() => $"Static Initializing {nameof(ProtoFluxContextualActions)}...");
+    // haha triple foreach
+    foreach (var category in SortedConfigKeys.Values)
+    {
+      foreach (var configKeys in category.Values)
+      {
+        foreach (var configKey in configKeys)
+        {
+          currentConfigKeys.Add(configKey);
+        }
+      }
+    }
 
     var types = AccessTools.GetTypesFromAssembly(ModAssembly);
 
@@ -61,9 +179,13 @@ public class ProtoFluxContextualActions : ResoniteMod
   public override void DefineConfiguration(ModConfigurationDefinitionBuilder builder)
   {
     foreach (var key in patchCategoryKeys.Values)
+    builder.Version("2.0.0");
+    builder.AutoSave(true);
+    foreach (var key in currentConfigKeys)
     {
       DebugFunc(() => $"Adding configuration key for {key.Name}...");
       builder.Key(key);
+      builder.Key(key.ConfigKey);
     }
   }
 
@@ -75,13 +197,23 @@ public class ProtoFluxContextualActions : ResoniteMod
 #endif
 
     Config = GetConfiguration()!;
-    Config.OnThisConfigurationChanged += OnConfigChanged;
+
+    ConfigManager.SetModConfig(Config);
+
+    Config?.OnThisConfigurationChanged += OnConfigChanged;
+
+    Config?.Save(true);
 
     PatchCategories();
     harmony.PatchAllUncategorized(ModAssembly);
 
     FluxRecipeConfig.OnInit();
     BindFile.OnInit();
+  }
+
+  public static void OnConfigChanged(ConfigurationChangedEvent change)
+  {
+    ConfigManager.OnConfigChanged(change);
   }
 
 
@@ -139,103 +271,8 @@ public class ProtoFluxContextualActions : ResoniteMod
     }
   }
 
-
-  [AutoRegisterConfigKey]
-  public static readonly ModConfigurationKey<int> MaxPerPage = new ModConfigurationKey<int>("Max Per Page", "How many items can show up on one page", () => 8);
-
-  [AutoRegisterConfigKey]
-  public static readonly ModConfigurationKey<bool> UseTypeColor = new ModConfigurationKey<bool>("Use Type Color", "If the menu items should use the type color instead of the node type color", () => true);
-
-  [AutoRegisterConfigKey]
-  public static readonly ModConfigurationKey<float> DoubleTapSpeed = new ModConfigurationKey<float>("Double Tap Speed", "How fast a doubletap is", () => 0.5f);
-
-  [AutoRegisterConfigKey]
-  public static readonly ModConfigurationKey<float> HoldTime = new ModConfigurationKey<float>("Hold Time", "How long to trigger a 'hold'", () => 0.5f);
-
-  [AutoRegisterConfigKey]
-  public static readonly ModConfigurationKey<bool> UseNullProxies = new ModConfigurationKey<bool>("Use Null Proxies", "If the selection action can be triggered with no proxy held", () => false);
-
-
-  [AutoRegisterConfigKey]
-  public static readonly ModConfigurationKey<bool> OnlyUseCustomBinds = new ModConfigurationKey<bool>("Only Use Custom Binds", "If only custom binds will be used. if true, actions will only activate if a custom bind is set.", () => false);
-
-
-  [AutoRegisterConfigKey]
-  public static readonly ModConfigurationKey<bool> AlternateDefaults = new ModConfigurationKey<bool>("Alternate Defaults", "If the activation binds are the alternate set.", () => false);
-
-  [AutoRegisterConfigKey]
-  public static readonly ModConfigurationKey<bool> DesktopUsesVRBinds = new ModConfigurationKey<bool>("Desktop Uses VR Binds", "If desktop should use the same binds as VR", () => false);
-
-  [AutoRegisterConfigKey]
-  public static readonly ModConfigurationKey<Key> SecondaryKey = new ModConfigurationKey<Key>("Secondary Key", "What key to use for 'opposite' secondary", () => Key.BackQuote);
-  [AutoRegisterConfigKey]
-  public static readonly ModConfigurationKey<Key> MenuKey = new ModConfigurationKey<Key>("Menu Key", "What key to use for 'opposite' menu", () => Key.LeftShift);
-  [AutoRegisterConfigKey]
-  public static readonly ModConfigurationKey<Key> GrabKey = new ModConfigurationKey<Key>("Grab Key", "What key to use for 'opposite' grab", () => Key.LeftAlt);
-  [AutoRegisterConfigKey]
-  public static readonly ModConfigurationKey<Key> PrimaryKey = new ModConfigurationKey<Key>("Primary Key", "What key to use for 'opposite' primary", () => Key.Tab);
-
-  [AutoRegisterConfigKey]
-  public static readonly ModConfigurationKey<bool> ArgsUseIndexFirst = new ModConfigurationKey<bool>("Arg Index First", "If DynImp arguments use Index before Names", () => false);
-
-  public static T GetConfig<T>(ModConfigurationKey<T> key, T Default)
+  public static void ModSettings_BuildModUi(UIBuilder ui)
   {
-    ModConfiguration? config = Config;
-    if (config != null) return config.GetValue(key) ?? Default;
-    return Default;
+    new ConfigUIBuilder().BuildConfigUI(ui);
   }
-  public static int GetMaxPerPage()
-  {
-    return GetConfig(MaxPerPage, 8);
-  }
-  public static bool GetUseTypeColor()
-  {
-    return GetConfig(UseTypeColor, true);
-  }
-  public static float GetDoubleTapSpeed()
-  {
-    return GetConfig(DoubleTapSpeed, 0.5f);
-  }
-  public static float GetHoldTime()
-  {
-    return GetConfig(HoldTime, 0.5f);
-  }
-  public static bool GetUseNullProxies()
-  {
-    return GetConfig(UseNullProxies, false);
-  }
-  public static bool GetOnlyUseCustomBinds()
-  {
-    return GetConfig(OnlyUseCustomBinds, false);
-  }
-  public static bool UseAlternateDefaults()
-  {
-    return GetConfig(AlternateDefaults, false);
-  }
-  public static bool GetDesktopShouldUseVR()
-  {
-    return GetConfig(DesktopUsesVRBinds, false);
-  }
-  public static Key GetSecondaryKey()
-  {
-
-    return GetConfig(SecondaryKey, Key.BackQuote);
-  }
-  public static Key GetMenuKey()
-  {
-    return GetConfig(MenuKey, Key.LeftShift);
-  }
-  public static Key GetGrabKey()
-  {
-    return GetConfig(GrabKey, Key.LeftAlt);
-  }
-  public static Key GetPrimaryKey()
-  {
-    return GetConfig(PrimaryKey, Key.Tab);
-  }
-  public static bool ReadIndexFirst()
-  {
-    return GetConfig(ArgsUseIndexFirst, false);
-  }
-  
 }
