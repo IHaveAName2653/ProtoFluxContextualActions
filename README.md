@@ -1,11 +1,5 @@
 # ProtoFlux Contextual Actions
 
-> # NOTE
-> This is a remake of my version, but as an actual fork.
-> this build wont be fully done for a while probably.
-> go check out [my version](https://github.com/IHaveAName2653/ProtoFluxContextualActions-AltVersion) for the full version of the features i am implementing here.
-> this only exists because the one i initially made wasnt a fork :(
-
 ProtoFlux Contextual Actions is a [Resonite Mod Loader](https://github.com/resonite-modding-group/ResoniteModLoader) mod that adds additional context menu actions for different contexts that revolve around protoflux.
 
 Bug reports welcome, feel free to create an issue for any actions that you want added.
