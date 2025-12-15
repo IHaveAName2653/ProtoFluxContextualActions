@@ -330,6 +330,11 @@ public class ConfigUIBuilder()
 
       return null;
     });
+    ui.NestOut();
+    ui.NestInto(ui.Empty("Description"));
+    ui.Style.TextAlignment = Alignment.MiddleLeft;
+    ui.Style.TextAutoSizeMax = 16;
+    ui.Text((LocaleString)$"<i>{key.ConfigDescription}</i>");
 
     ui.Style.MinHeight = -1f;
     ui.NestOut();

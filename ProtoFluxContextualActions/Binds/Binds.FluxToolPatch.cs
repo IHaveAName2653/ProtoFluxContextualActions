@@ -24,6 +24,7 @@ using Config = ProtoFluxContextualActions.ProtoFluxContextualActions;
 
 namespace ProtoFluxContextualActions;
 
+[HarmonyPatchCategory("Flux Binds"), TweakCategory("Flux Binds")]
 [HarmonyPatch(typeof(ProtoFluxTool), nameof(ProtoFluxTool.Update))]
 internal class FluxBindPatch
 {
