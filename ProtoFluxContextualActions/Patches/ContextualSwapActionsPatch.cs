@@ -269,6 +269,8 @@ internal static partial class ContextualSwapActionsPatch
       .. GetSlotActiveGroupItems(context),
       .. RepeatGroupItems(context),
       .. InputGroupItems(context),
+      .. ImpulseRelayGroupItems(context),
+      .. StringGroupItems(context),
     ];
 
     foreach (var menuItem in menuItems)

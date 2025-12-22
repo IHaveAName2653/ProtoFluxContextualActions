@@ -896,6 +896,7 @@ internal static class ContextualSelectionActionsPatch
       yield return new MenuItem(typeof(StripRTF_Tags), group: "String Operations");
 
       yield return new MenuItem(typeof(ConcatenateString), group: "String Operations");
+      yield return new MenuItem(typeof(StringInsert), group: "String Operations");
     }
 
     else if (outputType == typeof(DateTime))

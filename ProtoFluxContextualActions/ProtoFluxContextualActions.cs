@@ -9,6 +9,7 @@ using System.Reflection;
 namespace ProtoFluxContextualActions;
 
 using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 using FrooxEngine;
 using FrooxEngine.UIX;
@@ -183,6 +184,7 @@ public class ProtoFluxContextualActions : ResoniteMod
     }
   }
 
+  static readonly string configRoot = Path.Combine(Directory.GetCurrentDirectory(), "rml_config");
 
   public override void OnEngineInit()
   {
@@ -200,6 +202,11 @@ public class ProtoFluxContextualActions : ResoniteMod
 
     PatchCategories();
     harmony.PatchAllUncategorized(ModAssembly);
+
+    if (!Path.Exists(configRoot))
+    {
+      Directory.CreateDirectory(configRoot);
+    }
 
     FluxRecipeConfig.OnInit();
     BindFile.OnInit();
