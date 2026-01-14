@@ -24,8 +24,9 @@ internal class GroupManager
 	readonly List<MenuItem> RootItems = [];
 	readonly Action<MenuItem> onItemClicked;
 	readonly ProtoFluxTool currentTool;
+	readonly colorX? itemColor;
 
-	internal GroupManager(ProtoFluxTool tool, List<MenuItem> items, Action<MenuItem> onClicked)
+	internal GroupManager(ProtoFluxTool tool, List<MenuItem> items, colorX? targetColor, Action<MenuItem> onClicked)
 	{
 		Dictionary<string, List<MenuItem>> GroupedItems = [];
 		items.ForEach((item) =>
@@ -37,6 +38,7 @@ internal class GroupManager
 		PagedGroups = GroupedItems.ToDictionary(kv => kv.Key, kv => kv.Value.SplitToGroups(MaxPerPage));
 		onItemClicked = onClicked;
 		currentTool = tool;
+		itemColor = targetColor;
 	}
 
 	internal void RenderGroups()
@@ -63,7 +65,7 @@ internal class GroupManager
 				}
 				foreach (var item in RootItems)
 				{
-					colorX targetColor = item.node?.GetTypeColor() ?? colorX.White;
+					colorX targetColor = itemColor ?? item.node.GetTypeColor();
 					currentRootItems.Add(new()
 					{
 						name=item.DisplayName,
@@ -130,7 +132,7 @@ internal class GroupManager
 
 			foreach (var item in Items[pageIndex])
 			{
-				colorX targetColor = item.node?.GetTypeColor() ?? colorX.White;
+				colorX targetColor = itemColor ?? item.node.GetTypeColor();
 				menu.AddItem(item.DisplayName, targetColor, () => onItemClicked(item));
 			}
 

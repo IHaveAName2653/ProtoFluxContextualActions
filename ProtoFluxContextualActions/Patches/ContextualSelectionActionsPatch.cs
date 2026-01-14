@@ -97,15 +97,19 @@ internal static class ContextualSelectionActionsPatch
         return true;
       }
 		Action<ProtoFluxTool, ProtoFluxElementProxy, MenuItem, ProtoFluxNode>? currentAction = null;
+		colorX? targetColor = null;
+
         switch (elementProxy)
         {
           case ProtoFluxInputProxy inputProxy:
             {
+				targetColor = inputProxy.InputType.Value.GetTypeColor();
 				currentAction = ProcessInputProxyItem;
               break;
             }
           case ProtoFluxOutputProxy outputProxy:
             {
+				targetColor = outputProxy.OutputType.Value.GetTypeColor();
 				currentAction = ProcessOutputProxyItem;
               break;
             }
@@ -123,7 +127,7 @@ internal static class ContextualSelectionActionsPatch
             throw new Exception("found items for unsupported protoflux contextual action type");
         }
 
-		GroupManager grouper = new(__instance, items, (item) => OnMenuItemClicked(__instance, item, (node) => currentAction(__instance, elementProxy, item, node)));
+		GroupManager grouper = new(__instance, items, targetColor, (item) => OnMenuItemClicked(__instance, item, (node) => currentAction(__instance, elementProxy, item, node)));
 		grouper.RenderGroups();
 
       return false;
