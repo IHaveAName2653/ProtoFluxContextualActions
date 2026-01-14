@@ -63,7 +63,7 @@ public class BindDynOverride : DynOverride
 
   public Bind? MakeBindFromSlot(Slot target)
   {
-    string bindID = target.NameField.Value;
+    string bindID = target.Name_Field.Value;
     string targetFunc = target.GetComponent<DynamicValueVariable<string>>().Value.Value;
     bool desktopBind = target.GetComponent<DynamicValueVariable<bool>>().Value.Value;
 

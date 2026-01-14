@@ -63,7 +63,7 @@ public class ProtoFluxContextualActions : ResoniteMod
   #region Custom Bind Settings
 
   public static readonly ModConfigKey<bool>
-    AlternateDefaults = new("Alternate Defaults", "If the activation binds are the alternate set.", false),
+    AlternateDefaults = new("Alternate Defaults", "If the activation binds are the alternate set.\n(NOTE: Normal binds dont work, just keep this true)", true),
 
     OnlyUseCustomBinds = new("Only Use Custom Binds", "If only custom binds will be used. if true, actions will only activate if a custom bind is set.", false),
 
