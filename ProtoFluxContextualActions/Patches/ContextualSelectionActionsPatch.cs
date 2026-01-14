@@ -56,6 +56,8 @@ using ProtoFlux.Runtimes.Execution.Nodes.FrooxEngine.Input.Keyboard;
 using ProtoFlux.Runtimes.Execution.Nodes.Math.Rects;
 using ProtoFlux.Runtimes.Execution.Nodes.Utility.Uris;
 using ProtoFlux.Runtimes.Execution.Nodes.FrooxEngine.Variables;
+using ProtoFluxContextualActions.NewScripts;
+using System.Text.RegularExpressions;
 
 namespace ProtoFluxContextualActions.Patches;
 
@@ -84,32 +86,24 @@ internal static class ContextualSelectionActionsPatch
     var elementProxy = ____currentProxy.Target;
     var items = MenuItems(__instance)
       .Where(i => (i.binding ?? i.node).IsValidGenericType(validForInstantiation: true)) // this isn't great, we should instead catch errors before they propigate to here.
-      .Take(10)
-      .ToArray();
+      .ToList();
     // todo: pages / menu
 
-    if (items.Length != 0)
+    if (items.Count != 0)
     {
       if (__instance.LocalUser.IsContextMenuOpen())
       {
         __instance.LocalUser.CloseContextMenu(__instance);
         return true;
       }
-
-      __instance.StartTask(async () =>
-      {
-        var menu = await __instance.LocalUser.OpenContextMenu(__instance, __instance.Slot);
-        Traverse.Create(menu).Field<float?>("_speedOverride").Value = 10; // faster for better swiping
-
+		GroupManager grouper;
         switch (elementProxy)
         {
           case ProtoFluxInputProxy inputProxy:
             {
-              foreach (var item in items)
-              {
-                AddMenuItem(__instance, menu, inputProxy.InputType.Value.GetTypeColor(), item, addedNode =>
-                {
-                  if (item.overload)
+				grouper = new(__instance, items, (item) => OnMenuItemClicked(__instance, item, addedNode =>
+				{
+					if (item.overload)
                   {
                     __instance.StartTask(async () =>
                     {
@@ -128,15 +122,12 @@ internal static class ContextualSelectionActionsPatch
 
                     elementProxy.Node.Target.TryConnectInput(inputProxy.NodeInput.Target, output, allowExplicitCast: false, undoable: true);
                   }
-                });
-              }
+				}));
               break;
             }
           case ProtoFluxOutputProxy outputProxy:
             {
-              foreach (var item in items)
-              {
-                AddMenuItem(__instance, menu, outputProxy.OutputType.Value.GetTypeColor(), item, addedNode =>
+				grouper = new(__instance, items, (item) => OnMenuItemClicked(__instance, item, addedNode =>
                 {
                   if (item.overload) throw new Exception("Overloading with ProtoFluxOutputProxy is not supported");
                   var input = addedNode.NodeInputs
@@ -150,46 +141,51 @@ internal static class ContextualSelectionActionsPatch
                     await new Updates();
                     addedNode.TryConnectInput(input, outputProxy.NodeOutput.Target, allowExplicitCast: false, undoable: true);
                   });
-                });
-              }
+				}));
               break;
             }
           case ProtoFluxImpulseProxy impulseProxy:
             {
-              foreach (var item in items)
-              {
-                // the colors should almost always be the same so unique colors are more important maybe?
-                AddMenuItem(__instance, menu, item.node.GetTypeColor(), item, n =>
+				grouper = new(__instance, items, (item) => OnMenuItemClicked(__instance, item, n =>
                 {
                   if (item.overload) throw new Exception("Overloading with ProtoFluxImpulseProxy is not supported");
                   var operation = n.NodeOperationCount > 0 ? n.GetOperation(0) : n.GetOperationList(0).GetElement(0) as INodeOperation;
                   n.TryConnectImpulse(impulseProxy.NodeImpulse.Target, operation, undoable: true);
-                });
-              }
+                }));
               break;
             }
           case ProtoFluxOperationProxy operationProxy:
             {
-              foreach (var item in items)
-              {
-                AddMenuItem(__instance, menu, item.node.GetTypeColor(), item, n =>
+              grouper = new(__instance, items, (item) => OnMenuItemClicked(__instance, item, n =>
                 {
                   if (item.overload) throw new Exception("Overloading with ProtoFluxOperationProxy is not supported");
                   n.TryConnectImpulse(n.GetImpulse(0), operationProxy.NodeOperation.Target, undoable: true);
-                });
-              }
+                }));
               break;
             }
           default:
             throw new Exception("found items for unsupported protoflux contextual action type");
         }
-      });
+
+		grouper.RenderGroups();
 
       return false;
     }
 
     return true;
   }
+
+	private static void OnMenuItemClicked(ProtoFluxTool tool, MenuItem item, Action<ProtoFluxNode> setup)
+	{
+		var nodeBinding = item.binding ?? ProtoFluxHelper.GetBindingForNode(item.node);
+		tool.SpawnNode(nodeBinding, n =>
+		{
+			n.EnsureElementsInDynamicLists();
+			setup(n);
+			tool.LocalUser.CloseContextMenu(tool);
+			CleanupDraggedWire(tool);
+		});
+	}
 
   private static void AddMenuItem(ProtoFluxTool __instance, ContextMenu menu, colorX color, MenuItem item, Action<ProtoFluxNode> setup)
   {

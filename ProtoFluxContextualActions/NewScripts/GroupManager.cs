@@ -25,7 +25,7 @@ internal class GroupManager
 	readonly Action<MenuItem> onItemClicked;
 	readonly ProtoFluxTool currentTool;
 
-	internal GroupManager(List<MenuItem> items, Action<MenuItem> onClicked, ProtoFluxTool tool)
+	internal GroupManager(ProtoFluxTool tool, List<MenuItem> items, Action<MenuItem> onClicked)
 	{
 		Dictionary<string, List<MenuItem>> GroupedItems = [];
 		items.ForEach((item) =>
