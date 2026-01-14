@@ -64,7 +64,7 @@ namespace ProtoFluxContextualActions.Patches;
 internal static class ContextualSelectionActionsPatch
 {
 
-  internal readonly struct MenuItem(Type node, Type? binding = null, string? name = null, bool overload = false)
+  internal readonly struct MenuItem(Type node, Type? binding = null, string? name = null, bool overload = false, string group = "")
   {
     internal readonly Type node = node;
 
@@ -73,6 +73,8 @@ internal static class ContextualSelectionActionsPatch
     internal readonly string? name = name;
 
     internal readonly bool overload = overload;
+
+	internal readonly string group = group;
 
     internal readonly string DisplayName => name ?? NodeMetadataHelper.GetMetadata(node).Name ?? node.GetNiceTypeName();
   }
