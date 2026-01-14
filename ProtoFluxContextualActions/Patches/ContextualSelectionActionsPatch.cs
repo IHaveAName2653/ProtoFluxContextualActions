@@ -96,77 +96,34 @@ internal static class ContextualSelectionActionsPatch
         __instance.LocalUser.CloseContextMenu(__instance);
         return true;
       }
-		GroupManager grouper;
+		Action<ProtoFluxTool, ProtoFluxElementProxy, MenuItem, ProtoFluxNode>? currentAction = null;
         switch (elementProxy)
         {
           case ProtoFluxInputProxy inputProxy:
             {
-				grouper = new(__instance, items, (item) => OnMenuItemClicked(__instance, item, addedNode =>
-				{
-					if (item.overload)
-                  {
-                    __instance.StartTask(async () =>
-                    {
-                      // this is dumb
-                      // TODO: investigate why it's needed to avoid the one or two update disconnect issue
-                      await new Updates(1);
-                      var output = addedNode.GetOutput(0); // TODO: specify
-                      elementProxy.Node.Target.TryConnectInput(inputProxy.NodeInput.Target, output, allowExplicitCast: false, undoable: true);
-                    });
-                  }
-                  else
-                  {
-                    var output = addedNode.NodeOutputs
-                      .FirstOrDefault(o => typeof(INodeOutput<>).MakeGenericType(inputProxy.InputType).IsAssignableFrom(o.GetType()))
-                      ?? throw new Exception($"Could not find matching output of type '{inputProxy.InputType}' in '{addedNode}'");
-
-                    elementProxy.Node.Target.TryConnectInput(inputProxy.NodeInput.Target, output, allowExplicitCast: false, undoable: true);
-                  }
-				}));
+				currentAction = ProcessInputProxyItem;
               break;
             }
           case ProtoFluxOutputProxy outputProxy:
             {
-				grouper = new(__instance, items, (item) => OnMenuItemClicked(__instance, item, addedNode =>
-                {
-                  if (item.overload) throw new Exception("Overloading with ProtoFluxOutputProxy is not supported");
-                  var input = addedNode.NodeInputs
-                    .FirstOrDefault(i => i.TargetType.IsGenericType && (outputProxy.OutputType.Value.IsAssignableFrom(i.TargetType.GenericTypeArguments[0]) || ProtoFlux.Core.TypeHelper.CanImplicitlyConvertTo(outputProxy.OutputType, i.TargetType.GenericTypeArguments[0])))
-                    ?? throw new Exception($"Could not find matching input of type '{outputProxy.OutputType}' in '{addedNode}'");
-
-                  __instance.StartTask(async () =>
-                  {
-                    // this is dumb
-                    // TODO: investigate why it's needed for casting to work
-                    await new Updates();
-                    addedNode.TryConnectInput(input, outputProxy.NodeOutput.Target, allowExplicitCast: false, undoable: true);
-                  });
-				}));
+				currentAction = ProcessOutputProxyItem;
               break;
             }
           case ProtoFluxImpulseProxy impulseProxy:
             {
-				grouper = new(__instance, items, (item) => OnMenuItemClicked(__instance, item, n =>
-                {
-                  if (item.overload) throw new Exception("Overloading with ProtoFluxImpulseProxy is not supported");
-                  var operation = n.NodeOperationCount > 0 ? n.GetOperation(0) : n.GetOperationList(0).GetElement(0) as INodeOperation;
-                  n.TryConnectImpulse(impulseProxy.NodeImpulse.Target, operation, undoable: true);
-                }));
+				currentAction = ProcessImpulseProxyItem;
               break;
             }
           case ProtoFluxOperationProxy operationProxy:
             {
-              grouper = new(__instance, items, (item) => OnMenuItemClicked(__instance, item, n =>
-                {
-                  if (item.overload) throw new Exception("Overloading with ProtoFluxOperationProxy is not supported");
-                  n.TryConnectImpulse(n.GetImpulse(0), operationProxy.NodeOperation.Target, undoable: true);
-                }));
+				currentAction = ProcessOperationProxyItem;
               break;
             }
           default:
             throw new Exception("found items for unsupported protoflux contextual action type");
         }
 
+		GroupManager grouper = new(__instance, items, (item) => OnMenuItemClicked(__instance, item, (node) => currentAction(__instance, elementProxy, item, node)));
 		grouper.RenderGroups();
 
       return false;
@@ -187,22 +144,57 @@ internal static class ContextualSelectionActionsPatch
 		});
 	}
 
-  private static void AddMenuItem(ProtoFluxTool __instance, ContextMenu menu, colorX color, MenuItem item, Action<ProtoFluxNode> setup)
+	private static void ProcessInputProxyItem(ProtoFluxTool tool, ProtoFluxElementProxy elementProxy, MenuItem item, ProtoFluxNode addedNode)
   {
-    var nodeMetadata = NodeMetadataHelper.GetMetadata(item.node);
-    var label = (LocaleString)item.DisplayName;
-    var menuItem = menu.AddItem(in label, (Uri?)null, color);
-    menuItem.Button.LocalPressed += (button, data) =>
+    ProtoFluxInputProxy inputProxy = (ProtoFluxInputProxy)elementProxy;
+    if (item.overload)
+	{
+    	tool.StartTask(async () =>
+    	{
+    		// this is dumb
+    		// TODO: investigate why it's needed to avoid the one or two update disconnect issue
+    		await new Updates(1);
+    		var output = addedNode.GetOutput(0); // TODO: specify
+    		elementProxy.Node.Target.TryConnectInput(inputProxy.NodeInput.Target, output, allowExplicitCast: false, undoable: true);
+    	});
+    }
+    else
     {
-      var nodeBinding = item.binding ?? ProtoFluxHelper.GetBindingForNode(item.node);
-      __instance.SpawnNode(nodeBinding, n =>
-      {
-        n.EnsureElementsInDynamicLists();
-        setup(n);
-        __instance.LocalUser.CloseContextMenu(__instance);
-        CleanupDraggedWire(__instance);
-      });
-    };
+    	var output = addedNode.NodeOutputs
+    	.FirstOrDefault(o => typeof(INodeOutput<>).MakeGenericType(inputProxy.InputType).IsAssignableFrom(o.GetType()))
+    	?? throw new Exception($"Could not find matching output of type '{inputProxy.InputType}' in '{addedNode}'");
+
+		elementProxy.Node.Target.TryConnectInput(inputProxy.NodeInput.Target, output, allowExplicitCast: false, undoable: true);
+	}
+  }
+  private static void ProcessOutputProxyItem(ProtoFluxTool tool, ProtoFluxElementProxy elementProxy, MenuItem item, ProtoFluxNode addedNode)
+  {
+    ProtoFluxOutputProxy outputProxy = (ProtoFluxOutputProxy)elementProxy;
+    if (item.overload) throw new Exception("Overloading with ProtoFluxOutputProxy is not supported");
+    var input = addedNode.NodeInputs
+    	.FirstOrDefault(i => i.TargetType.IsGenericType && (outputProxy.OutputType.Value.IsAssignableFrom(i.TargetType.GenericTypeArguments[0]) || ProtoFlux.Core.TypeHelper.CanImplicitlyConvertTo(outputProxy.OutputType, i.TargetType.GenericTypeArguments[0])))
+    	?? throw new Exception($"Could not find matching input of type '{outputProxy.OutputType}' in '{addedNode}'");
+
+    	tool.StartTask(async () =>
+    	{
+    	// this is dumb
+    	// TODO: investigate why it's needed for casting to work
+    	await new Updates();
+    	addedNode.TryConnectInput(input, outputProxy.NodeOutput.Target, allowExplicitCast: false, undoable: true);
+    });
+  }
+  private static void ProcessImpulseProxyItem(ProtoFluxTool tool, ProtoFluxElementProxy elementProxy, MenuItem item, ProtoFluxNode addedNode)
+  {
+    ProtoFluxImpulseProxy impulseProxy = (ProtoFluxImpulseProxy)elementProxy;
+    if (item.overload) throw new Exception("Overloading with ProtoFluxImpulseProxy is not supported");
+	var operation = addedNode.NodeOperationCount > 0 ? addedNode.GetOperation(0) : addedNode.GetOperationList(0).GetElement(0) as INodeOperation;
+    addedNode.TryConnectImpulse(impulseProxy.NodeImpulse.Target, operation, undoable: true);
+  }
+  private static void ProcessOperationProxyItem(ProtoFluxTool tool, ProtoFluxElementProxy elementProxy, MenuItem item, ProtoFluxNode addedNode)
+  {
+    ProtoFluxOperationProxy operationProxy = (ProtoFluxOperationProxy)elementProxy;
+    if (item.overload) throw new Exception("Overloading with ProtoFluxOperationProxy is not supported");
+	addedNode.TryConnectImpulse(addedNode.GetImpulse(0), operationProxy.NodeOperation.Target, undoable: true);
   }
 
   // note: if we can build up a graph then we can egraph reduce to make matches like this easier to spot automatically rather than needing to check each one manually
