@@ -61,9 +61,7 @@
 		<!-- Linux paths -->
 		<When Condition="'$(OS)' != 'Windows_NT'">
 			<PropertyGroup>
-				<ResonitePath Condition=" '$(ResonitePath)' == '' and Exists('/home/user/example') ">
-					/home/user/example
-				</ResonitePath>
+				<ResonitePath Condition=" '$(ResonitePath)' == '' and Exists('$(LinuxPath1)') ">$(LinuxPath1)</ResonitePath>
 			</PropertyGroup>
 		</When>
 	</Choose>
