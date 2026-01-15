@@ -19,9 +19,14 @@ internal struct ContextItem
 
 internal class GroupManager
 {
-	const int MaxPerPage = 12; // Maximum possible items in the context menu, excluding Next/Back buttons
+	// Page Config
+	const int MaxPerPage = 8; // Maximum possible items in the context menu, excluding Next/Back buttons
+	const bool ShowBackOnAllPages = false;
+
+	// Folder Config
 	static readonly Uri FolderIcon = new("resdb:///c8628c05dc2c5a047d90455da53ada83d3d4a2279662efbe156e2147f893f5b0.png");
 
+	// Instance Variables
 	readonly Dictionary<string, List<List<MenuItem>>> PagedGroups = [];
 	readonly List<MenuItem> RootItems = [];
 	readonly Action<MenuItem> onItemClicked;
@@ -117,7 +122,7 @@ internal class GroupManager
 		if (currentTool.IsRemoved) return;
 		bool showPreviousButton = pageIndex > 0;
 		bool showNextButton = pageIndex < Items.Count - 1;
-		bool showBackButton = Items.Count != 1;
+		bool showBackButton = (Items.Count + RootItems.Count) != 1 && (ShowBackOnAllPages || pageIndex == 0);
 		
 
 		currentTool.StartTask(async () =>
