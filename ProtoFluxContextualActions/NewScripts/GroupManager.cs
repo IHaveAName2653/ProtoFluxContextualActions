@@ -20,7 +20,7 @@ internal struct ContextItem
 internal class GroupManager
 {
 	// Page Config
-	const int MaxPerPage = 8; // Maximum possible items in the context menu, excluding Next/Back buttons
+	const int MaxPerPage = 10; // Maximum possible items in the context menu, excluding Previous/Next/Back buttons
 	const bool ShowBackOnAllPages = false;
 
 	// Folder Config
