@@ -131,9 +131,9 @@ internal static class ContextualSelectionActionsPatch
       }
 
       GroupManager grouper = new(__instance, items, targetColor, (item) => OnMenuItemClicked(__instance, item, (node) => currentAction(__instance, elementProxy, item, node)));
-      grouper.RenderGroups();
+      bool success = grouper.RenderGroups();
 
-      return false;
+      return !success;
     }
 
     return true;

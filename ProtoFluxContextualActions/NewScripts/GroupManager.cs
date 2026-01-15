@@ -48,45 +48,44 @@ internal class GroupManager
     itemColor = targetColor;
   }
 
-  internal void RenderGroups()
+  internal bool RenderGroups()
   {
-    RenderRoot();
+    return RenderRoot();
   }
 
-  void RenderRoot()
+  bool RenderRoot()
   {
-    if (currentTool.IsRemoved) return;
-    if (PagedGroups.Count + RootItems.Count == 0) return;
-    currentTool.StartTask(async () =>
+    if (currentTool.IsRemoved) return false;
+    if (PagedGroups.Count + RootItems.Count == 0) return false;
+    if (PagedGroups.Count != 1 || RootItems.Count != 0)
     {
-      if (PagedGroups.Count + RootItems.Count != 1)
+      List<ContextItem> currentRootItems = [];
+      foreach (var group in PagedGroups)
       {
-        List<ContextItem> currentRootItems = [];
-        foreach (var group in PagedGroups)
+        currentRootItems.Add(new()
         {
-          currentRootItems.Add(new()
-          {
-            name = group.Key,
-            color = colorX.White,
-            onClick = () => RenderFolder(group.Value, 0),
-            uri = FolderIcon
-          });
-        }
-        foreach (var item in RootItems)
-        {
-          colorX targetColor = itemColor ?? item.node.GetTypeColor();
-          currentRootItems.Add(new()
-          {
-            name = item.DisplayName,
-            color = targetColor,
-            onClick = () => onItemClicked(item)
-          });
-        }
-        List<List<ContextItem>> pagedRootItems = currentRootItems.SplitToGroups(MaxPerPage);
-        RenderRootFolder(pagedRootItems, 0);
+          name = group.Key,
+          color = colorX.White,
+          onClick = () => RenderFolder(group.Value, 0),
+          uri = FolderIcon
+        });
       }
-      else RenderFolder(PagedGroups.Values.ToList()[0], 0);
-    });
+      foreach (var item in RootItems)
+      {
+        colorX targetColor = itemColor ?? item.node.GetTypeColor();
+        currentRootItems.Add(new()
+        {
+          name = item.DisplayName,
+          color = targetColor,
+          onClick = () => onItemClicked(item)
+        });
+      }
+      List<List<ContextItem>> pagedRootItems = currentRootItems.SplitToGroups(MaxPerPage);
+      RenderRootFolder(pagedRootItems, 0);
+    }
+	else if (PagedGroups.Count == 0) return false;
+    else RenderFolder(PagedGroups.Values.ToList()[0], 0);
+	return true;
   }
 
   void RenderRootFolder(List<List<ContextItem>> Items, int pageIndex)
