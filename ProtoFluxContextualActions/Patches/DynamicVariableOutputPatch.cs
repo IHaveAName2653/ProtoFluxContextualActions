@@ -45,7 +45,7 @@ internal static class DynamicVariableOutputPatch
             });
       };
 
-	  label = "Read";
+      label = "Read";
       var readItem = menu.AddItem(in label, Icon_Color_Output, RadiantUI_Constants.Hero.CYAN);
       readItem.Button.LocalPressed += (button, data) =>
       {
