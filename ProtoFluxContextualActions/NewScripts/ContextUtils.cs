@@ -19,10 +19,10 @@ internal static class ContextUtils
 		return menu;
 	}
 
-	internal static void AddItem(this ContextMenu menu, string name, colorX? color, Action onClicked)
+	internal static void AddMenuItem(this ContextMenu menu, string name, colorX? color, Action onClicked, Uri? icon = null)
 	{
 		var label = (LocaleString)name;
-		var menuItem = menu.AddItem(in label, (Uri?)null, color);
+		var menuItem = menu.AddItem(in label, icon, color);
 		menuItem.Button.LocalPressed += (button, data) =>
 		{
 			onClicked();

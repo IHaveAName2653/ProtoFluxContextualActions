@@ -14,11 +14,13 @@ internal struct ContextItem
 	internal string name;
 	internal colorX? color;
 	internal Action onClick;
+	internal Uri? uri;
 }
 
 internal class GroupManager
 {
 	const int MaxPerPage = 12; // Maximum possible items in the context menu, excluding Next/Back buttons
+	static readonly Uri FolderIcon = new("resdb:///c8628c05dc2c5a047d90455da53ada83d3d4a2279662efbe156e2147f893f5b0.png");
 
 	readonly Dictionary<string, List<List<MenuItem>>> PagedGroups = [];
 	readonly List<MenuItem> RootItems = [];
@@ -60,7 +62,8 @@ internal class GroupManager
 					{
 						name=group.Key,
 						color=colorX.White,
-						onClick=() => RenderFolder(group.Value, 0)
+						onClick=() => RenderFolder(group.Value, 0),
+						uri=FolderIcon
 					});
 				}
 				foreach (var item in RootItems)
@@ -93,18 +96,18 @@ internal class GroupManager
 
 			if (showPreviousButton)
 			{
-				menu.AddItem("Previous", colorX.Orange, () => RenderRootFolder(Items, pageIndex - 1));
+				menu.AddMenuItem("Previous", colorX.Orange, () => RenderRootFolder(Items, pageIndex - 1));
 			}
 
 			foreach (var item in Items[pageIndex])
 			{
-				menu.AddItem(item.name, item.color, item.onClick);
+				menu.AddMenuItem(item.name, item.color, item.onClick, item.uri);
 			}
 
 
 			if (showNextButton)
 			{
-				menu.AddItem("Next", colorX.Cyan, () => RenderRootFolder(Items, pageIndex + 1));
+				menu.AddMenuItem("Next", colorX.Cyan, () => RenderRootFolder(Items, pageIndex + 1));
 			}
 		});
 	}
@@ -123,23 +126,23 @@ internal class GroupManager
 
 			if (showBackButton)
 			{
-				menu.AddItem("Back", colorX.Red, () => RenderRoot());
+				menu.AddMenuItem("Back", colorX.Red, () => RenderRoot());
 			}
 			if (showPreviousButton)
 			{
-				menu.AddItem("Previous", colorX.Orange, () => RenderFolder(Items, pageIndex - 1));
+				menu.AddMenuItem("Previous", colorX.Orange, () => RenderFolder(Items, pageIndex - 1));
 			}
 
 			foreach (var item in Items[pageIndex])
 			{
 				colorX targetColor = itemColor ?? item.node.GetTypeColor();
-				menu.AddItem(item.DisplayName, targetColor, () => onItemClicked(item));
+				menu.AddMenuItem(item.DisplayName, targetColor, () => onItemClicked(item));
 			}
 
 
 			if (showNextButton)
 			{
-				menu.AddItem("Next", colorX.Cyan, () => RenderFolder(Items, pageIndex + 1));
+				menu.AddMenuItem("Next", colorX.Cyan, () => RenderFolder(Items, pageIndex + 1));
 			}
 		});
 	}
