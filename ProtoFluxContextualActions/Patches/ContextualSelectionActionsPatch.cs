@@ -744,7 +744,7 @@ internal static class ContextualSelectionActionsPatch
       if (nodeVariable.IsValueType)
       {
         var variableIncrementNode = typeof(ValueIncrement<>).MakeGenericType(nodeVariable);
-        var variableDecrementNode = typeof(ValueIncrement<>).MakeGenericType(nodeVariable);
+        var variableDecrementNode = typeof(ValueDecrement<>).MakeGenericType(nodeVariable);
         yield return createVariableNode(variableIncrementNode);
         yield return createVariableNode(variableDecrementNode);
       }
