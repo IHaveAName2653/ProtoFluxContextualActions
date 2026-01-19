@@ -15,7 +15,7 @@ internal static class ContextUtils
   internal static async Task<ContextMenu> CreateContextMenu(ProtoFluxTool tool)
   {
     var menu = await tool.LocalUser.OpenContextMenu(tool, tool.Slot);
-    Traverse.Create(menu).Field<float?>("_speedOverride").Value = 10; // faster for better swiping
+    Traverse.Create(menu).Field<float?>("_speedOverride").Value = 12; // faster for better swiping
     return menu;
   }
 

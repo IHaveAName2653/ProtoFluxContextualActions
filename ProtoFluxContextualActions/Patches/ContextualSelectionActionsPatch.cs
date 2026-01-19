@@ -741,13 +741,14 @@ internal static class ContextualSelectionActionsPatch
       ]);
       yield return createVariableNode(variableInput);
       yield return createVariableNode(variableLatchInput);
-      if (nodeVariable.IsValueType)
+      // NOTE: For some reason, Inc/Dec dont seem to work. Possibly look into this later?
+	  /*if (nodeVariable.IsValueType)
       {
         var variableIncrementNode = typeof(ValueIncrement<>).MakeGenericType(nodeVariable);
         var variableDecrementNode = typeof(ValueDecrement<>).MakeGenericType(nodeVariable);
         yield return createVariableNode(variableIncrementNode);
         yield return createVariableNode(variableDecrementNode);
-      }
+      }*/
     }
   }
   #endregion
