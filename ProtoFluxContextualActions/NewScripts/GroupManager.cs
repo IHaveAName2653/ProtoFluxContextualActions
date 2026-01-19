@@ -24,6 +24,7 @@ internal class GroupManager
   const bool ShowBackOnAllPages = false;
 
   // Folder Config
+  // - 'White 128' version of the folder icon from resonite
   static readonly Uri FolderIcon = new("resdb:///c8628c05dc2c5a047d90455da53ada83d3d4a2279662efbe156e2147f893f5b0.png");
 
   // Instance Variables
@@ -33,6 +34,8 @@ internal class GroupManager
   readonly ProtoFluxTool currentTool;
   readonly colorX? itemColor;
 
+  // Possibly allow for sorting groups using "1-[Name]" where "1" is the order, and gets displayed as [Name]?
+  // Maybe also allow for MenuItem to have a OrderOffset as well, and have items sorted as such?
   internal GroupManager(ProtoFluxTool tool, List<MenuItem> items, colorX? targetColor, Action<MenuItem> onClicked)
   {
     Dictionary<string, List<MenuItem>> GroupedItems = [];
@@ -48,6 +51,7 @@ internal class GroupManager
     itemColor = targetColor;
   }
 
+  // This function probably isnt needed anymore, and could be removed in replacement for calling RenderRoot() directly.
   internal bool RenderGroups()
   {
     return RenderRoot();
@@ -83,11 +87,12 @@ internal class GroupManager
       List<List<ContextItem>> pagedRootItems = currentRootItems.SplitToGroups(MaxPerPage);
       RenderRootFolder(pagedRootItems, 0);
     }
-	else if (PagedGroups.Count == 0) return false;
+    else if (PagedGroups.Count == 0) return false;
     else RenderFolder(PagedGroups.Values.ToList()[0], 0);
-	return true;
+    return true;
   }
 
+  // todo: find some way to combine RenderRootFolder() and RenderFolder() into just RenderFolder()
   void RenderRootFolder(List<List<ContextItem>> Items, int pageIndex)
   {
     if (currentTool.IsRemoved) return;

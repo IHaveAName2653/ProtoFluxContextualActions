@@ -87,7 +87,7 @@ internal static class ContextualSelectionActionsPatch
   internal static bool Prefix(ProtoFluxTool __instance, SyncRef<ProtoFluxElementProxy> ____currentProxy)
   {
     var elementProxy = ____currentProxy.Target;
-    var items = MenuItems(__instance)
+    var items = MenuItems(elementProxy)
       .Where(i => (i.binding ?? i.node).IsValidGenericType(validForInstantiation: true)) // this isn't great, we should instead catch errors before they propigate to here.
       .ToList();
     // todo: pages / menu
@@ -238,11 +238,10 @@ internal static class ContextualSelectionActionsPatch
   // todo: detect add + 1 and offer to convert to inc?
   // todo: detect add + 1 or inc and write and offer to convert to increment?
 
-  internal static IEnumerable<MenuItem> MenuItems(ProtoFluxTool __instance)
+  // todo: increase amount of available nodes for all types?
+  // todo: organize certain nodes into useful groups?
+  internal static IEnumerable<MenuItem> MenuItems(ProtoFluxElementProxy? target)
   {
-    var _currentProxy = Traverse.Create(__instance).Field("_currentProxy").GetValue<SyncRef<ProtoFluxElementProxy>>();
-    var target = _currentProxy?.Target;
-
     foreach (var item in GeneralNumericOperationMenuItems(target)) yield return item;
     foreach (var item in GeneralObjectOperationMenuItems(target)) yield return item;
 
@@ -742,7 +741,7 @@ internal static class ContextualSelectionActionsPatch
       yield return createVariableNode(variableInput);
       yield return createVariableNode(variableLatchInput);
       // NOTE: For some reason, Inc/Dec dont seem to work. Possibly look into this later?
-	  /*if (nodeVariable.IsValueType)
+      /*if (nodeVariable.IsValueType)
       {
         var variableIncrementNode = typeof(ValueIncrement<>).MakeGenericType(nodeVariable);
         var variableDecrementNode = typeof(ValueDecrement<>).MakeGenericType(nodeVariable);
