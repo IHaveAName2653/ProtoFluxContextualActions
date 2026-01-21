@@ -15,6 +15,8 @@ internal static class ContextUtils
   internal static async Task<ContextMenu> CreateContextMenu(ProtoFluxTool tool)
   {
     var menu = await tool.LocalUser.OpenContextMenu(tool, tool.Slot);
+	// for some reason, the pre-remake version used 10 and its consistent, but here 10 doesnt work.
+	// todo: look into why this is?
     Traverse.Create(menu).Field<float?>("_speedOverride").Value = 12; // faster for better swiping
     return menu;
   }

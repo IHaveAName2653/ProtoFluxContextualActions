@@ -15,6 +15,7 @@ internal struct ContextItem
   internal colorX? color;
   internal Action onClick;
   internal Uri? uri;
+	internal MenuItem baseItem;
 }
 
 internal class GroupManager
@@ -28,8 +29,8 @@ internal class GroupManager
   static readonly Uri FolderIcon = new("resdb:///c8628c05dc2c5a047d90455da53ada83d3d4a2279662efbe156e2147f893f5b0.png");
 
   // Instance Variables
-  readonly Dictionary<string, List<List<MenuItem>>> PagedGroups = [];
-  readonly List<MenuItem> RootItems = [];
+  readonly Dictionary<string, List<List<ContextItem>>> PagedGroups = [];
+  readonly List<ContextItem> RootItems = [];
   readonly Action<MenuItem> onItemClicked;
   readonly ProtoFluxTool currentTool;
   readonly colorX? itemColor;
@@ -38,26 +39,34 @@ internal class GroupManager
   // Maybe also allow for MenuItem to have a OrderOffset as well, and have items sorted as such?
   internal GroupManager(ProtoFluxTool tool, List<MenuItem> items, colorX? targetColor, Action<MenuItem> onClicked)
   {
-    Dictionary<string, List<MenuItem>> GroupedItems = [];
-    items.ForEach((item) =>
-    {
-      if (item.group == "") RootItems.Add(item);
-      else if (GroupedItems.TryGetValue(item.group, out List<MenuItem>? list)) list.Add(item);
-      else GroupedItems.Add(item.group, [item]);
-    });
-    PagedGroups = GroupedItems.ToDictionary(kv => kv.Key, kv => kv.Value.SplitToGroups(MaxPerPage));
     onItemClicked = onClicked;
+
+		List<ContextItem> contextItems = items.Select((item)=>{
+    	colorX itemColor = targetColor ?? item.node.GetTypeColor();
+			return new ContextItem()
+			{
+				name = item.DisplayName,
+				color = targetColor,
+      	onClick = () => onItemClicked(item),
+				baseItem = item,
+			};
+		}).ToList();
+
+    Dictionary<string, List<ContextItem>> GroupedItems = [];
+    contextItems.ForEach((item) =>
+    {
+			string itemGroup = item.baseItem.group;
+      if (itemGroup == "") RootItems.Add(item);
+      else if (GroupedItems.TryGetValue(itemGroup, out List<ContextItem>? list)) list.Add(item);
+      else GroupedItems.Add(itemGroup, [item]);
+    });
+
+    PagedGroups = GroupedItems.ToDictionary(kv => kv.Key, kv => kv.Value.SplitToGroups(MaxPerPage));
     currentTool = tool;
     itemColor = targetColor;
   }
 
-  // This function probably isnt needed anymore, and could be removed in replacement for calling RenderRoot() directly.
-  internal bool RenderGroups()
-  {
-    return RenderRoot();
-  }
-
-  bool RenderRoot()
+  internal bool RenderRoot()
   {
     if (currentTool.IsRemoved) return false;
     if (PagedGroups.Count + RootItems.Count == 0) return false;
@@ -70,30 +79,22 @@ internal class GroupManager
         {
           name = group.Key,
           color = colorX.White,
-          onClick = () => RenderFolder(group.Value, 0),
+          onClick = () => RenderFolder(group.Value, 0, false),
           uri = FolderIcon
         });
       }
-      foreach (var item in RootItems)
-      {
-        colorX targetColor = itemColor ?? item.node.GetTypeColor();
-        currentRootItems.Add(new()
-        {
-          name = item.DisplayName,
-          color = targetColor,
-          onClick = () => onItemClicked(item)
-        });
-      }
+			currentRootItems.AddRange(RootItems);
+			
       List<List<ContextItem>> pagedRootItems = currentRootItems.SplitToGroups(MaxPerPage);
-      RenderRootFolder(pagedRootItems, 0);
+      RenderFolder(pagedRootItems, 0, true);
     }
     else if (PagedGroups.Count == 0) return false;
-    else RenderFolder(PagedGroups.Values.ToList()[0], 0);
+    else RenderFolder(PagedGroups.Values.ToList()[0], 0, true);
     return true;
   }
 
   // todo: find some way to combine RenderRootFolder() and RenderFolder() into just RenderFolder()
-  void RenderRootFolder(List<List<ContextItem>> Items, int pageIndex)
+  /*void RenderRootFolder(List<List<ContextItem>> Items, int pageIndex)
   {
     if (currentTool.IsRemoved) return;
     bool showPreviousButton = pageIndex > 0;
@@ -120,9 +121,46 @@ internal class GroupManager
         menu.AddMenuItem("Next", colorX.Cyan, () => RenderRootFolder(Items, pageIndex + 1));
       }
     });
+  }*/
+
+	void RenderFolder(List<List<ContextItem>> Items, int pageIndex, bool isRoot = false)
+  {
+    if (currentTool.IsRemoved) return;
+    bool showPreviousButton = pageIndex > 0;
+    bool showNextButton = pageIndex < Items.Count - 1;
+    bool showBackButton = 
+			(Items.Count + RootItems.Count) != 1 
+			&& (ShowBackOnAllPages || pageIndex == 0)
+			&& !isRoot;
+
+
+    currentTool.StartTask(async () =>
+    {
+      var menu = await ContextUtils.CreateContextMenu(currentTool);
+
+      if (showBackButton)
+      {
+        menu.AddMenuItem("Back", colorX.Red, () => RenderRoot());
+      }
+      if (showPreviousButton)
+      {
+        menu.AddMenuItem("Previous", colorX.Orange, () => RenderFolder(Items, pageIndex - 1, isRoot));
+      }
+
+      foreach (var item in Items[pageIndex])
+      {
+        menu.AddMenuItem(item.name, item.color, item.onClick);
+      }
+
+
+      if (showNextButton)
+      {
+        menu.AddMenuItem("Next", colorX.Cyan, () => RenderFolder(Items, pageIndex + 1, isRoot));
+      }
+    });
   }
 
-  void RenderFolder(List<List<MenuItem>> Items, int pageIndex)
+  /*void RenderFolder(List<List<MenuItem>> Items, int pageIndex)
   {
     if (currentTool.IsRemoved) return;
     bool showPreviousButton = pageIndex > 0;
@@ -136,7 +174,7 @@ internal class GroupManager
 
       if (showBackButton)
       {
-        menu.AddMenuItem("Back", colorX.Red, () => RenderRoot());
+        menu.AddMenuItem("Back", colorX.Red, (Action)(() => this.RenderRoot()));
       }
       if (showPreviousButton)
       {
@@ -155,5 +193,5 @@ internal class GroupManager
         menu.AddMenuItem("Next", colorX.Cyan, () => RenderFolder(Items, pageIndex + 1));
       }
     });
-  }
+  }*/
 }
