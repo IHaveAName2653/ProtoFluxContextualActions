@@ -33,7 +33,6 @@ internal class GroupManager
   readonly List<ContextItem> RootItems = [];
   readonly Action<MenuItem> onItemClicked;
   readonly ProtoFluxTool currentTool;
-  readonly colorX? itemColor;
 
   // Possibly allow for sorting groups using "1-[Name]" where "1" is the order, and gets displayed as [Name]?
   // Maybe also allow for MenuItem to have a OrderOffset as well, and have items sorted as such?
@@ -63,7 +62,6 @@ internal class GroupManager
 
     PagedGroups = GroupedItems.ToDictionary(kv => kv.Key, kv => kv.Value.SplitToGroups(MaxPerPage));
     currentTool = tool;
-    itemColor = targetColor;
   }
 
   internal bool RenderRoot()
@@ -149,7 +147,7 @@ internal class GroupManager
 
       foreach (var item in Items[pageIndex])
       {
-        menu.AddMenuItem(item.name, item.color, item.onClick);
+        menu.AddMenuItem(item.name, item.color, item.onClick, item.uri);
       }
 
 
