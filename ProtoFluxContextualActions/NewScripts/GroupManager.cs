@@ -15,7 +15,7 @@ internal struct ContextItem
   internal colorX? color;
   internal Action onClick;
   internal Uri? uri;
-	internal MenuItem baseItem;
+  internal MenuItem baseItem;
 }
 
 internal class GroupManager
@@ -40,21 +40,22 @@ internal class GroupManager
   {
     onItemClicked = onClicked;
 
-		List<ContextItem> contextItems = items.Select((item)=>{
-    	colorX itemColor = targetColor ?? item.node.GetTypeColor();
-			return new ContextItem()
-			{
-				name = item.DisplayName,
-				color = targetColor,
-      	onClick = () => onItemClicked(item),
-				baseItem = item,
-			};
-		}).ToList();
+    List<ContextItem> contextItems = items.Select((item) =>
+    {
+      colorX itemColor = targetColor ?? item.node.GetTypeColor();
+      return new ContextItem()
+      {
+        name = item.DisplayName,
+        color = targetColor,
+        onClick = () => onItemClicked(item),
+        baseItem = item,
+      };
+    }).ToList();
 
     Dictionary<string, List<ContextItem>> GroupedItems = [];
     contextItems.ForEach((item) =>
     {
-			string itemGroup = item.baseItem.group;
+      string itemGroup = item.baseItem.group;
       if (itemGroup == "") RootItems.Add(item);
       else if (GroupedItems.TryGetValue(itemGroup, out List<ContextItem>? list)) list.Add(item);
       else GroupedItems.Add(itemGroup, [item]);
@@ -81,8 +82,8 @@ internal class GroupManager
           uri = FolderIcon
         });
       }
-			currentRootItems.AddRange(RootItems);
-			
+      currentRootItems.AddRange(RootItems);
+
       List<List<ContextItem>> pagedRootItems = currentRootItems.SplitToGroups(MaxPerPage);
       RenderFolder(pagedRootItems, 0, true);
     }
@@ -121,15 +122,15 @@ internal class GroupManager
     });
   }*/
 
-	void RenderFolder(List<List<ContextItem>> Items, int pageIndex, bool isRoot = false)
+  void RenderFolder(List<List<ContextItem>> Items, int pageIndex, bool isRoot = false)
   {
     if (currentTool.IsRemoved) return;
     bool showPreviousButton = pageIndex > 0;
     bool showNextButton = pageIndex < Items.Count - 1;
-    bool showBackButton = 
-			(Items.Count + RootItems.Count) != 1 
-			&& (ShowBackOnAllPages || pageIndex == 0)
-			&& !isRoot;
+    bool showBackButton =
+            (Items.Count + RootItems.Count) != 1
+            && (ShowBackOnAllPages || pageIndex == 0)
+            && !isRoot;
 
 
     currentTool.StartTask(async () =>

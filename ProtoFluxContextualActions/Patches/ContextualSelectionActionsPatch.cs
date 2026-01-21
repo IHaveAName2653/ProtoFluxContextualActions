@@ -725,8 +725,6 @@ internal static class ContextualSelectionActionsPatch
 
             newNode.TryConnectReference(targetRef, outputProxy.Node.Target, undoable: true);
 
-			newNode.EnsureVisual(); // added due to Increment/Decrement not having visuals
-
             return false;
           },
           group: "Variables"
@@ -743,14 +741,20 @@ internal static class ContextualSelectionActionsPatch
       yield return createVariableNode(variableInput);
       yield return createVariableNode(variableLatchInput);
       // For some reason, Inc/Dec dont seem to work. Possibly look into this later?
-	  // ^ looked into it, its creating the slot, but isnt generating the visuals seemingly.
-      if (nodeVariable.IsValueType)
+      // ^ looked into it, its creating the slot, but isnt generating the visuals seemingly.
+      // for some reason though, its failing to actually assign the variable. write and writelatch work fine, but specifically these 2 dont.
+      // will leave them commented until i find an actual fix
+      /*if (nodeVariable.IsValueType)
       {
-        var variableIncrementNode = typeof(ValueIncrement<>).MakeGenericType(nodeVariable);
-        var variableDecrementNode = typeof(ValueDecrement<>).MakeGenericType(nodeVariable);
+				var variableIncrementNode = GetNodeForType(nodeVariable, [
+        	new NodeTypeRecord(typeof(ValueIncrement<>), null, null),
+      	]);
+				var variableDecrementNode = GetNodeForType(nodeVariable, [
+        	new NodeTypeRecord(typeof(ValueDecrement<>), null, null),
+      	]);
         yield return createVariableNode(variableIncrementNode);
         yield return createVariableNode(variableDecrementNode);
-      }
+      }*/
     }
   }
   #endregion
