@@ -14,7 +14,7 @@ internal struct ContextItem
   internal string name;
   internal colorX? color;
   internal Action onClick;
-  internal Uri? uri;
+  internal Uri? iconUri;
   internal MenuItem baseItem;
 }
 
@@ -79,7 +79,7 @@ internal class GroupManager
           name = group.Key,
           color = colorX.White,
           onClick = () => RenderFolder(group.Value, 0, false),
-          uri = FolderIcon
+          iconUri = FolderIcon
         });
       }
       currentRootItems.AddRange(RootItems);
@@ -148,7 +148,7 @@ internal class GroupManager
 
       foreach (var item in Items[pageIndex])
       {
-        menu.AddMenuItem(item.name, item.color, item.onClick, item.uri);
+        menu.AddMenuItem(item.name, item.color, item.onClick, item.iconUri);
       }
 
 
