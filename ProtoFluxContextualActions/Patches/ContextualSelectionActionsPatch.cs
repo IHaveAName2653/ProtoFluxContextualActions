@@ -278,6 +278,9 @@ internal static class ContextualSelectionActionsPatch
     yield return new MenuItem(typeof(Sequence));
     yield return new MenuItem(typeof(ImpulseDemultiplexer), name: "Impulse Demultiplex");
 
+    yield return new MenuItem(typeof(DynamicImpulseTrigger));
+    yield return new MenuItem(typeof(StartAsyncTask), group: "Async");
+
     if (IsIterationNode(nodeType))
     {
       yield return new MenuItem(typeof(ValueIncrement<int>)); // dec can be swapped to?
@@ -288,6 +291,9 @@ internal static class ContextualSelectionActionsPatch
     {
       yield return new MenuItem(typeof(SetGlobalTransform));
       yield return new MenuItem(typeof(SetLocalTransform));
+
+      yield return new MenuItem(typeof(SetSlotPersistentSelf));
+      yield return new MenuItem(typeof(SetSlotActiveSelf));
     }
 
     else if (nodeType == typeof(RenderToTextureAsset))
@@ -305,25 +311,41 @@ internal static class ContextualSelectionActionsPatch
     {
       case ImpulseType.AsyncCall:
       case ImpulseType.AsyncResumption:
-        yield return new MenuItem(typeof(AsyncFor));
-        yield return new MenuItem(typeof(AsyncSequence));
+        yield return new MenuItem(typeof(AsyncFor), group: "Async");
+        yield return new MenuItem(typeof(AsyncSequence), group: "Async");
+        yield return new MenuItem(typeof(DelayUpdates), group: "Async");
+        yield return new MenuItem(typeof(DelaySecondsFloat), group: "Async");
+        yield return new MenuItem(typeof(AsyncDynamicImpulseTrigger), group: "Async");
         break;
     }
   }
 
   private static IEnumerable<MenuItem> OperationMenuItems(ProtoFluxOperationProxy operationProxy)
   {
-    if (operationProxy.IsAsync)
-    {
-      yield return new MenuItem(typeof(StartAsyncTask));
-    }
 
-    if (operationProxy.Node.Target.NodeName.Contains("Debug"))
-    {
-      yield return new MenuItem(typeof(Update));
-      yield return new MenuItem(typeof(LocalUpdate));
-      yield return new MenuItem(typeof(SecondsTimer));
-    }
+    yield return new MenuItem(typeof(FireOnTrue));
+    yield return new MenuItem(typeof(FireOnFalse));
+    yield return new MenuItem(typeof(FireOnValueChange<bool>));
+
+    yield return new MenuItem(typeof(FireWhileTrue), group: "Loops");
+    yield return new MenuItem(typeof(SecondsTimer), group: "Loops");
+    yield return new MenuItem(typeof(Update), group: "Loops");
+    yield return new MenuItem(typeof(LocalUpdate), group: "Loops");
+
+    yield return new MenuItem(typeof(DynamicImpulseReceiver));
+
+    yield return new MenuItem(typeof(StartAsyncTask), group: "Async");
+    yield return new MenuItem(typeof(AsyncDynamicImpulseReceiver), group: "Async");
+
+
+    // Events are pretty useful
+    yield return new MenuItem(typeof(OnLoaded), group: "Events");
+    yield return new MenuItem(typeof(OnSaving), group: "Events");
+    yield return new MenuItem(typeof(OnStart), group: "Events");
+    yield return new MenuItem(typeof(OnDuplicate), group: "Events");
+    yield return new MenuItem(typeof(OnDestroy), group: "Events");
+    yield return new MenuItem(typeof(OnDestroying), group: "Events");
+    yield return new MenuItem(typeof(OnPackageImported), group: "Events");
   }
 
   internal static IEnumerable<MenuItem> GeneralNumericOperationMenuItems(ProtoFluxElementProxy? target)
