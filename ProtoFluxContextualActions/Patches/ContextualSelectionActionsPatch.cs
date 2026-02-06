@@ -337,6 +337,7 @@ internal static class ContextualSelectionActionsPatch
         var coder = Traverse.Create(typeof(Coder<>).MakeGenericType(outputType));
         var isMatrix = outputType.IsMatrixType();
         var isQuaternion = outputType.IsQuaternionType();
+        var psuedoGenericTypes = world.GetPsuedoGenericTypesForWorld();
         // only handle values
 
         if (isQuaternion)
@@ -415,6 +416,12 @@ internal static class ContextualSelectionActionsPatch
         {
           yield return new MenuItem(transposeNodeType, name: "Transpose");
         }
+
+        // While not often used, masking is useful.
+        if (psuedoGenericTypes.Mask.Any(n => n.Types.First() == outputType))
+        {
+          yield return new(psuedoGenericTypes.Mask.First(n => n.Types.First() == outputType).Node);
+        }
       }
     }
   }
@@ -463,6 +470,14 @@ internal static class ContextualSelectionActionsPatch
       yield return new MenuItem(typeof(FindChildByTag)); // use tag here because it has less inputs which fits better when going to swap.
       yield return new MenuItem(typeof(GetSlotActive));
       yield return new MenuItem(typeof(GetSlotName));
+
+      // I swear this was in the original version. Very useful!
+      yield return new MenuItem(typeof(DuplicateSlot));
+      yield return new MenuItem(typeof(GetParentSlot));
+      yield return new MenuItem(typeof(SetParent));
+      yield return new MenuItem(typeof(DestroySlot));
+
+      yield return new MenuItem(typeof(DynamicImpulseTrigger));
     }
 
     else if (outputType == typeof(bool))
@@ -480,6 +495,11 @@ internal static class ContextualSelectionActionsPatch
       yield return new MenuItem(typeof(Contains));
       yield return new MenuItem(typeof(Substring));
       yield return new MenuItem(typeof(FormatString));
+
+      yield return new MenuItem(typeof(StripRTF_Tags));
+
+      yield return new MenuItem(typeof(ConcatenateString));
+      yield return new MenuItem(typeof(StringInsert));
     }
 
     else if (outputType == typeof(DateTime))
@@ -578,13 +598,13 @@ internal static class ContextualSelectionActionsPatch
       yield return new(psuedoGenericTypes.AND.First(n => n.Types.First() == outputType).Node);
       yield return new(psuedoGenericTypes.OR.First(n => n.Types.First() == outputType).Node);
       yield return new(psuedoGenericTypes.NOT.First(n => n.Types.First() == outputType).Node);
-    }
 
-    if (outputType == typeof(bool2) || outputType == typeof(bool3) || outputType == typeof(bool4))
-    {
-      yield return new(psuedoGenericTypes.All.First(n => n.Types.First() == outputType).Node);
-      yield return new(psuedoGenericTypes.Any.First(n => n.Types.First() == outputType).Node);
-      yield return new(psuedoGenericTypes.None.First(n => n.Types.First() == outputType).Node);
+      if (outputType != typeof(bool))
+      {
+        yield return new(psuedoGenericTypes.All.First(n => n.Types.First() == outputType).Node);
+        yield return new(psuedoGenericTypes.Any.First(n => n.Types.First() == outputType).Node);
+        yield return new(psuedoGenericTypes.None.First(n => n.Types.First() == outputType).Node);
+      }
     }
 
     if (outputType.IsEnum)
@@ -830,6 +850,9 @@ internal static class ContextualSelectionActionsPatch
       yield return new MenuItem(typeof(ValueGreaterThan<int>));
       yield return new MenuItem(typeof(ValueGreaterOrEqual<int>));
       yield return new MenuItem(typeof(ValueEquals<int>));
+
+      // Sometimes this can be really helpful to have around
+      yield return new MenuItem(typeof(DataModelBooleanToggle));
     }
 
     else if (inputType == typeof(DateTime))
@@ -983,6 +1006,26 @@ internal static class ContextualSelectionActionsPatch
     {
       yield return new MenuItem(typeof(RandomFloat));
     }
+
+    // As is this, being able to create a variable without a write.
+    // Of course, i have *no* idea if this is actually a good way of doing value/object type switching,
+    // But i saw it somewhere else in this project, and it works well.
+    var variableInput = GetNodeForType(inputType, [
+      new NodeTypeRecord(typeof(LocalValue<>), null, null),
+      new NodeTypeRecord(typeof(LocalObject<>), null, null),
+    ]);
+    var variableInput2 = GetNodeForType(inputType, [
+      new NodeTypeRecord(typeof(StoredValue<>), null, null),
+      new NodeTypeRecord(typeof(StoredObject<>), null, null),
+    ]);
+    var variableInput3 = GetNodeForType(inputType, [
+      new NodeTypeRecord(typeof(DataModelValueFieldStore<>), null, null),
+      new NodeTypeRecord(typeof(DataModelObjectRefStore<>), null, null),
+    ]);
+
+    yield return new MenuItem(variableInput, group: "Variables");
+    yield return new MenuItem(variableInput2, group: "Variables");
+    yield return new MenuItem(variableInput3, group: "Variables");
   }
 
   internal static Dictionary<Type, List<Type>> UnpackNodeMapping(World world) =>
