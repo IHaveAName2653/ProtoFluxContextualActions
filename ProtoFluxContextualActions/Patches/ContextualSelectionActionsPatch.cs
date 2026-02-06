@@ -794,6 +794,25 @@ internal static class ContextualSelectionActionsPatch
       yield return new MenuItem(typeof(UserFromUsername));
       yield return new MenuItem(typeof(GetActiveUser));
       yield return new MenuItem(typeof(GetActiveUserSelf));
+
+	  // Select a User in the current session
+      List<User> users = [];
+      inputProxy.Slot.World.GetUsers(users);
+      foreach (User user in users)
+      {
+        yield return new MenuItem(
+          typeof(FrooxEngine.ProtoFlux.Runtimes.Execution.Nodes.RefObjectInput<User>),
+          name: user.UserName,
+          onNodeSpawn: (node, proxy, tool) =>
+          {
+            var comp = node.Slot.GetComponent<FrooxEngine.ProtoFlux.Runtimes.Execution.Nodes.RefObjectInput<User>>();
+            comp.Target.Target = user;
+            return true;
+          },
+          binding: typeof(FrooxEngine.ProtoFlux.Runtimes.Execution.Nodes.RefObjectInput<User>),
+          group: "User List"
+        );
+      }
     }
 
     else if (inputType == typeof(UserRoot))
