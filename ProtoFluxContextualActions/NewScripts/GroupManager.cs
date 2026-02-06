@@ -5,7 +5,6 @@ using FrooxEngine.ProtoFlux;
 using HarmonyLib;
 using Elements.Core;
 using static ProtoFluxContextualActions.Patches.ContextualSelectionActionsPatch;
-using Elements.Quantity;
 
 namespace ProtoFluxContextualActions.NewScripts;
 
@@ -35,7 +34,7 @@ internal class GroupManager
   readonly ProtoFluxTool currentTool;
 
   // Possibly allow for sorting groups using "1-[Name]" where "1" is the order, and gets displayed as [Name]?
-  // Maybe also allow for MenuItem to have a OrderOffset as well, and have items sorted as such?
+  // Maybe also allow for MenuItem to be sorted with OrderOffset (like slots)?
   internal GroupManager(ProtoFluxTool tool, List<MenuItem> items, colorX? targetColor, Action<MenuItem> onClicked)
   {
     onItemClicked = onClicked;
@@ -92,36 +91,6 @@ internal class GroupManager
     return true;
   }
 
-  // todo: find some way to combine RenderRootFolder() and RenderFolder() into just RenderFolder()
-  /*void RenderRootFolder(List<List<ContextItem>> Items, int pageIndex)
-  {
-    if (currentTool.IsRemoved) return;
-    bool showPreviousButton = pageIndex > 0;
-    bool showNextButton = pageIndex < Items.Count - 1;
-
-
-    currentTool.StartTask(async () =>
-    {
-      var menu = await ContextUtils.CreateContextMenu(currentTool);
-
-      if (showPreviousButton)
-      {
-        menu.AddMenuItem("Previous", colorX.Orange, () => RenderRootFolder(Items, pageIndex - 1));
-      }
-
-      foreach (var item in Items[pageIndex])
-      {
-        menu.AddMenuItem(item.name, item.color, item.onClick, item.uri);
-      }
-
-
-      if (showNextButton)
-      {
-        menu.AddMenuItem("Next", colorX.Cyan, () => RenderRootFolder(Items, pageIndex + 1));
-      }
-    });
-  }*/
-
   void RenderFolder(List<List<ContextItem>> Items, int pageIndex, bool isRoot = false)
   {
     if (currentTool.IsRemoved) return;
@@ -158,39 +127,4 @@ internal class GroupManager
       }
     });
   }
-
-  /*void RenderFolder(List<List<MenuItem>> Items, int pageIndex)
-  {
-    if (currentTool.IsRemoved) return;
-    bool showPreviousButton = pageIndex > 0;
-    bool showNextButton = pageIndex < Items.Count - 1;
-    bool showBackButton = (Items.Count + RootItems.Count) != 1 && (ShowBackOnAllPages || pageIndex == 0);
-
-
-    currentTool.StartTask(async () =>
-    {
-      var menu = await ContextUtils.CreateContextMenu(currentTool);
-
-      if (showBackButton)
-      {
-        menu.AddMenuItem("Back", colorX.Red, (Action)(() => this.RenderRoot()));
-      }
-      if (showPreviousButton)
-      {
-        menu.AddMenuItem("Previous", colorX.Orange, () => RenderFolder(Items, pageIndex - 1));
-      }
-
-      foreach (var item in Items[pageIndex])
-      {
-        colorX targetColor = itemColor ?? item.node.GetTypeColor();
-        menu.AddMenuItem(item.DisplayName, targetColor, () => onItemClicked(item));
-      }
-
-
-      if (showNextButton)
-      {
-        menu.AddMenuItem("Next", colorX.Cyan, () => RenderFolder(Items, pageIndex + 1));
-      }
-    });
-  }*/
 }
