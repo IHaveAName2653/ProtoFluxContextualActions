@@ -59,6 +59,7 @@ using ProtoFlux.Runtimes.Execution.Nodes.FrooxEngine.Variables;
 using ProtoFluxContextualActions.NewScripts;
 using System.Text.RegularExpressions;
 using ProtoFlux.Runtimes.Execution;
+using FrooxEngine.Undo;
 
 namespace ProtoFluxContextualActions.Patches;
 
@@ -478,6 +479,106 @@ internal static class ContextualSelectionActionsPatch
       yield return new MenuItem(typeof(DestroySlot));
 
       yield return new MenuItem(typeof(DynamicImpulseTrigger));
+
+      yield return new MenuItem(typeof(ObjectRelay<Slot>), name: "Foreach Child", onNodeSpawn: (ProtoFluxNode node, ProtoFluxElementProxy proxy, ProtoFluxTool tool) =>
+      {
+        tool.StartTask(async () =>
+        {
+          // Node definitions, specifically in FrooxEngine.ProtoFlux so the node actually spawns
+          Type childCountNode = typeof(FrooxEngine.ProtoFlux.Runtimes.Execution.Nodes.FrooxEngine.Slots.ChildrenCount);
+          Type forNode = typeof(FrooxEngine.ProtoFlux.Runtimes.Execution.Nodes.For);
+          Type getChildNode = typeof(FrooxEngine.ProtoFlux.Runtimes.Execution.Nodes.FrooxEngine.Slots.GetChild);
+          Type relayNode = typeof(FrooxEngine.ProtoFlux.Runtimes.Execution.Nodes.ObjectRelay<Slot>);
+
+          ProtoFluxNode thisChildCountNode = null;
+          ProtoFluxNode thisForNode = null;
+          ProtoFluxNode thisGetChild = null;
+          ProtoFluxNode thisRelayNode = null;
+
+          tool.SpawnNode(childCountNode, newNode =>
+          {
+            thisChildCountNode = newNode;
+            newNode.EnsureVisual();
+          });
+          tool.SpawnNode(forNode, newNode =>
+          {
+            thisForNode = newNode;
+            newNode.EnsureVisual();
+          });
+          tool.SpawnNode(getChildNode, newNode =>
+          {
+            thisGetChild = newNode;
+            newNode.EnsureVisual();
+          });
+          tool.SpawnNode(relayNode, newNode =>
+          {
+            thisRelayNode = newNode;
+            newNode.EnsureVisual();
+          });
+
+          await new Updates(3);
+
+          if (thisChildCountNode == null) return;
+          if (thisForNode == null) return;
+          if (thisGetChild == null) return;
+          if (thisRelayNode == null) return;
+
+          node.World.BeginUndoBatch("Create Foreach Child");
+
+          node.Slot.CreateSpawnUndoPoint("Spawn Child Count");
+          thisChildCountNode.Slot.CreateSpawnUndoPoint("Spawn Child Count");
+          thisForNode.Slot.CreateSpawnUndoPoint("Spawn For");
+          thisGetChild.Slot.CreateSpawnUndoPoint("Spawn Get Child");
+          thisRelayNode.Slot.CreateSpawnUndoPoint("Spawn Relay");
+
+          // Inputs and outputs
+          INodeOutput inputRelay = node.GetOutput(0);
+
+          ISyncRef childCountInstance = thisChildCountNode.GetInput(0);
+          INodeOutput childCount = thisChildCountNode.GetOutput(0);
+
+          ISyncRef forCount = thisForNode.GetInput(0);
+          INodeOutput forIndex = thisForNode.GetOutput(0);
+
+          ISyncRef childInstance = thisGetChild.GetInput(0);
+          ISyncRef childIndex = thisGetChild.GetInput(1);
+
+          ISyncRef relayInstance = thisRelayNode.GetInput(0);
+          INodeOutput relayOutput = thisRelayNode.GetOutput(0);
+
+          // Node Connections
+          relayInstance.Target = inputRelay;
+          childCountInstance.Target = inputRelay;
+
+          forCount.Target = childCount;
+
+          childIndex.Target = forIndex;
+          childInstance.Target = relayOutput;
+
+          // Positions
+          float3 baseUp = node.Slot.Up;
+          float3 baseRight = node.Slot.Right;
+
+          void LocalTransformNode(ProtoFluxNode input, float X, float Y)
+          {
+            Slot target = input.Slot;
+            target.CopyTransform(node.Slot);
+            target.GlobalPosition += (baseUp * Y) + (baseRight * X);
+          }
+
+          LocalTransformNode(thisChildCountNode, 0.12f, 0.00375f);
+          LocalTransformNode(thisForNode, 0.27f, -0.01125f);
+
+          LocalTransformNode(thisRelayNode, 0.075f, -0.105f);
+
+          LocalTransformNode(thisGetChild, 0.42f, -0.11625f);
+
+          node.World.EndUndoBatch();
+        });
+
+        return true;
+
+      });
     }
 
     else if (outputType == typeof(bool))
