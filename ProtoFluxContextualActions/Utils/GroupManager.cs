@@ -73,7 +73,6 @@ internal class GroupManager
       else GroupedItems.Add(itemGroup, [item]);
     });
 
-    // Would be read from mod config instead of a constant
     MenuVisual selectedVisual = overrideVisual ?? ProtoFluxContextualActions.MenuVisual;
 
     currentVisual = selectedVisual switch
@@ -319,5 +318,15 @@ internal class GroupManager
         await currentVisual.RenderNextPage(() => RenderFolder(Items, pageIndex + 1, isRoot, false, prefix));
       }
     });
+  }
+
+  internal void Close()
+  {
+    currentVisual.Close();
+  }
+
+  internal bool IsOpen()
+  {
+    return currentVisual?.IsOpen() ?? false;
   }
 }

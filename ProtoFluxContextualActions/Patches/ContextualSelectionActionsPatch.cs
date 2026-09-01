@@ -77,9 +77,7 @@ internal static partial class ContextualSelectionActionsPatch
   internal static void PrimaryReleasePatch(ProtoFluxTool __instance, SyncRef<ProtoFluxElementProxy> ____currentProxy)
   {
     if (!ProtoFluxContextualActions.ShouldDoDefaultActionOnPrimaryRelease) return;
-    if (!__instance.LocalUser.IsContextMenuOpen()) return;
-    // only allow the contextmenu to trigger if the menu came from the tool
-    if (__instance.LocalUser.GetUserContextMenu().CurrentSummoner != __instance) return;
+    if (!(currentGrouper?.IsOpen() ?? false)) return;
     __instance.OnSecondaryPress();
   }
 
@@ -91,12 +89,13 @@ internal static partial class ContextualSelectionActionsPatch
     var elementProxy = ____currentProxy.Target;
     if (elementProxy == null)
     {
-      if (__instance.LocalUser.IsContextMenuOpen())
+      if (currentGrouper?.IsOpen() ?? false)
       {
         if (lastProxy != null)
         {
           __instance.StartDraggingWire(lastProxy);
-          __instance.LocalUser.CloseContextMenu(__instance);
+          currentGrouper?.Close();
+          currentGrouper = null;
           lastProxy = null;
         }
       }
@@ -131,13 +130,14 @@ internal static partial class ContextualSelectionActionsPatch
 
     if (items.Count != 0)
     {
-      if (__instance.LocalUser.IsContextMenuOpen())
+      if (currentGrouper?.IsOpen() ?? false)
       {
         if (elementProxy == null && lastProxy != null)
         {
           __instance.StartDraggingWire(lastProxy);
         }
-        __instance.LocalUser.CloseContextMenu(__instance);
+        currentGrouper?.Close();
+        currentGrouper = null;
         return true;
       }
       Action<ProtoFluxTool, ProtoFluxElementProxy, MenuItem, ProtoFluxNode>? currentAction = null;
@@ -185,6 +185,7 @@ internal static partial class ContextualSelectionActionsPatch
       //items.Sort((a, b) => a.orderOffset - b.orderOffset);
 
       GroupManager grouper = new(__instance, items, targetColor);
+      currentGrouper = grouper;
       bool success = grouper.RenderRoot(true);
 
       return !success;
@@ -193,6 +194,8 @@ internal static partial class ContextualSelectionActionsPatch
     return true;
   }
 
+  static GroupManager? currentGrouper;
+
   private static void OnMenuItemClicked(ProtoFluxTool tool, MenuItem item, Action<ProtoFluxNode> setup)
   {
     var nodeBinding = item.binding ?? ProtoFluxHelper.GetBindingForNode(item.node);
@@ -200,7 +203,8 @@ internal static partial class ContextualSelectionActionsPatch
     {
       n.EnsureElementsInDynamicLists();
       setup(n);
-      tool.LocalUser.CloseContextMenu(tool);
+      currentGrouper?.Close();
+      currentGrouper = null;
       CleanupDraggedWire(tool);
     });
   }

@@ -137,6 +137,7 @@ internal static partial class ContextualSwapActionsPatch
       __instance.SpawnNodeType.Value = additionalData.GetOrCreateValue(__instance).lastSpawnNodeType;
 
       GroupManager grouper = new(__instance, items, colorX.White);
+      currentGrouper = grouper;
       bool success = grouper.RenderRoot(true);
 
       return !success;
@@ -144,6 +145,8 @@ internal static partial class ContextualSwapActionsPatch
 
     return true;
   }
+
+  static GroupManager? currentGrouper;
 
   internal static void OnSwapNode(ProtoFluxTool __instance, ProtoFluxNode hitNode, MenuItem menuItem)
   {
@@ -159,7 +162,8 @@ internal static partial class ContextualSwapActionsPatch
         hitNode.UndoableDestroy();
       }
 
-      __instance.LocalUser.CloseContextMenu(__instance);
+      currentGrouper?.Close();
+      currentGrouper = null;
     }
   }
 
