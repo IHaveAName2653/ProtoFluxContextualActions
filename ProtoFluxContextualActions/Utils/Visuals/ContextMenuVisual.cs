@@ -3,8 +3,6 @@ using FrooxEngine.ProtoFlux;
 
 namespace ProtoFluxContextualActions.Utils.Visuals;
 
-// This is a 'example' visual, but also the main current visual as well.
-// It should be pretty easy to use this to make a different UI
 internal class ContextMenuVisual : IMenuVisual
 {
   ContextMenu? currentMenu;
@@ -24,13 +22,14 @@ internal class ContextMenuVisual : IMenuVisual
   async Task IMenuVisual.Close()
   {
     currentMenu?.Close();
+    currentMenu = null;
   }
 
   bool IMenuVisual.IsOpen()
   {
     if (currentMenu == null) return false;
-    if (!currentMenu.LocalUser.IsContextMenuOpen()) return false;
-    return currentMenu.LocalUser.GetUserContextMenu().CurrentSummoner == currentTool;
+    if (currentMenu.MenuState == ContextMenu.State.Closed) return false;
+    return currentMenu?.CurrentSummoner == currentTool;
   }
 
   async Task IMenuVisual.RenderBack(Action onClicked)

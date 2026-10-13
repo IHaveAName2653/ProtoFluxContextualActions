@@ -32,11 +32,10 @@ internal enum MenuVisual
 internal class GroupManager
 {
   // Page Config
-  int MaxPerPage => ProtoFluxContextualActions.MaxItemsPerPage; // Maximum possible items in the context menu, excluding Previous/Next/Back buttons
+  int MaxPerPage => ProtoFluxContextualActions.MaxItemsPerPage; // Maximum possible items in the context menu, excluding Back/Next/Previous buttons
   const bool ShowBackOnAllPages = false;
 
   // Folder Config
-  // - 'White 128' version of the folder icon from resonite
   static readonly Uri FolderIcon = new("resdb:///c8628c05dc2c5a047d90455da53ada83d3d4a2279662efbe156e2147f893f5b0.png");
   static readonly Uri CollapsedGroupIcon = new("resdb:///cf7390db8e2686e8fdf18cc4526ef82113b002e07254eb925c5e69ba6ef27e59.png");
 
