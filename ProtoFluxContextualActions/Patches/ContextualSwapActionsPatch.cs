@@ -138,9 +138,8 @@ internal static partial class ContextualSwapActionsPatch
       // restore previous spawn node
       __instance.SpawnNodeType.Value = additionalData.GetOrCreateValue(__instance).lastSpawnNodeType;
 
-      GroupManager grouper = new(__instance, items);
-      currentGrouper = grouper;
-      var success = grouper.RenderRoot(true);
+      currentGrouper = new(__instance, items);
+      var success = currentGrouper.RenderRoot(true);
 
       return !success;
     }

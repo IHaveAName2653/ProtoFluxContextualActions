@@ -218,9 +218,8 @@ internal static partial class ContextualSelectionActionsPatch
       // the idea behind this would have worked, but i must have written it wrong as this breaks all ordering of everything
       //items.Sort((a, b) => a.orderOffset - b.orderOffset);
 
-      var grouper = new GroupManager(__instance, items);
-      currentGrouper = grouper;
-      var success = grouper.RenderRoot(true);
+      currentGrouper = new(__instance, items);
+      var success = currentGrouper.RenderRoot(true);
 
       return !success;
     }
